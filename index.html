@@ -1,0 +1,3988 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>전력변환연구실 | Power Conversion Lab · 경남대학교 전기공학과</title>
+<meta name="description" content="경남대학교 전기공학과 전력변환연구실 — 전동기 드라이브, 다상 전동기 고장 진단, 센서리스 제어, 계통연계 인버터 연구">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23000'/><path d='M37.20 7.55 A25 25 0 0 1 55.78 39.73' fill='none' stroke='%23F5B23E' stroke-width='6' stroke-linecap='round'/><path d='M50.58 48.73 A25 25 0 0 1 13.42 48.73' fill='none' stroke='%238FB3FF' stroke-width='6' stroke-linecap='round'/><path d='M8.22 39.73 A25 25 0 0 1 26.80 7.55' fill='none' stroke='%23FFFFFF' stroke-width='6' stroke-linecap='round'/><path d='M17 36 h6 v-10 h9 v14 h9 v-10 h6' fill='none' stroke='%23FFFFFF' stroke-width='3.8' stroke-linejoin='round' stroke-linecap='round'/></svg>">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  color-scheme:dark;
+  --navy:#F2F4F8; --fill:#1F2937; --blue:#8FB3FF; --blue-2:#4F7DF5; --blue-light:#1C2433; --blue-soft:#161A22;
+  --amber:#F5B23E; --amber-dark:#F5B23E; --amber-light:#3A2E12;
+  --ink:#E8EAEF; --muted:#9AA3B2; --line:#262B35; --bg:#000000; --bg-soft:#0C0E12; --card:#121419;
+  --radius:14px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.6;font-size:16px;overflow-x:hidden;word-break:keep-all}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.missing{color:var(--amber);background:var(--amber-light);border-radius:3px;padding:0 3px}
+
+/* ─ header ─ */
+header{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.82);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.hdr{display:flex;align-items:center;gap:20px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--navy);font-weight:800;letter-spacing:-.01em;white-space:nowrap}
+.brand:hover{text-decoration:none}
+.brand .mark{width:38px;height:38px;border-radius:10px;background:#000;border:1px solid var(--line);display:grid;place-items:center;flex:none}
+.brand .mark svg{width:30px;height:30px}
+.brand .sub{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em;line-height:1.1}
+.brand .nm{display:block;font-size:17px;line-height:1.15}
+nav.main{margin-left:auto;display:flex;gap:2px}
+nav.main a{padding:8px 12px;border-radius:8px;font-weight:600;color:var(--ink);font-size:15px}
+nav.main a:hover{background:var(--blue-soft);text-decoration:none}
+nav.main a.on{color:var(--blue);background:var(--blue-light)}
+.lang{border:1px solid var(--line);background:var(--bg-soft);border-radius:999px;padding:0;display:flex;overflow:hidden;flex:none}
+.lang button{border:0;background:transparent;padding:6px 11px;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer}
+.lang button.on{background:var(--amber);color:#111}
+@media (max-width:860px){
+  .hdr{height:auto;flex-wrap:wrap;padding:10px 0 8px;gap:8px 12px}
+  .brand{flex:1;min-width:0}.brand .nm{font-size:15px}.brand .sub{font-size:10px}
+  nav.main{order:3;width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:4px 0 0}
+  nav.main a{text-align:center;padding:9px 4px;font-size:13.5px;background:var(--bg-soft)}
+}
+
+/* ─ pages ─ */
+main>section{display:none;padding:40px 0 72px}
+main>section.show{display:block}
+h1,h2,h3,h4{line-height:1.25;letter-spacing:-.015em;margin:0}
+.page-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.page-h h1{font-size:34px;font-weight:800;color:var(--navy)}
+.page-h p{margin:6px 0 0;color:var(--muted);max-width:720px}
+.eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber-dark);margin-bottom:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:900px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--blue-light);color:var(--blue);vertical-align:middle}
+.badge.new{background:var(--amber);color:#111}
+.badge.ongoing{background:#0F2E20;color:#5EDB94}
+.badge.done{background:#1F2430;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:11px 18px;font-weight:700;border:1px solid transparent;cursor:pointer;font-size:15px;line-height:1}
+.btn:hover{text-decoration:none}
+.btn.primary{background:var(--amber);color:#111}
+.btn.primary:hover{background:#E09A10}
+.btn.ghost{background:transparent;border-color:#3A4150;color:var(--navy)}
+.btn.ghost:hover{background:var(--blue-soft)}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--blue-soft);border:1px solid #2E3442;border-radius:999px;padding:6px 13px;font-size:13.5px;font-weight:600;color:#C9D8FF}
+.sect{margin-top:48px}
+.sect h2{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.sect h2 .cnt{font-size:13px;font-weight:700;color:var(--muted);background:var(--blue-soft);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+.empty{color:var(--muted);background:var(--bg-soft);border:1px dashed var(--line);border-radius:12px;padding:18px 20px;text-align:center}
+
+/* ─ hero ─ */
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:36px;align-items:center;padding:28px 0 10px}
+.hero h1{font-size:44px;font-weight:900;color:var(--navy);letter-spacing:-.03em;line-height:1.12}
+.hero h1 small{display:block;font-size:17px;font-weight:600;color:var(--muted);letter-spacing:0;margin-bottom:12px;line-height:1.4}
+.hero .tag{font-size:19px;color:var(--blue);font-weight:600;margin:14px 0 18px}
+.hero .lead{color:var(--ink);font-size:16.5px;max-width:560px;white-space:pre-line}
+.hero .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.hero-art{position:relative;background:radial-gradient(120% 90% at 20% 0%,#1A2030,#0A0C10 70%);border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:var(--shadow)}
+.hero-art svg{width:100%;height:auto;display:block}
+@media (max-width:900px){.hero{grid-template-columns:1fr;gap:22px}.hero h1{font-size:34px}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.stat{background:linear-gradient(150deg,#1A1F2B,#111419);color:#fff;border:1px solid #2A3040;border-radius:14px;padding:18px 20px}
+.stat b{display:block;font-size:30px;font-weight:800;font-family:var(--mono);letter-spacing:-.02em}
+.stat span{font-size:13px;opacity:.85;font-weight:600}
+@media (max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+.home-news .item{display:grid;grid-template-columns:92px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.home-news .item:last-child{border:0}
+.recruit{background:linear-gradient(135deg,#1E2A48,#2E63D9);color:#fff;border-radius:18px;padding:30px}
+.recruit h2{color:#fff;font-size:24px}
+.recruit p{opacity:.92}
+.recruit ul{margin:14px 0 20px;padding-left:20px}
+.recruit li{margin:6px 0}
+.recruit .btn.primary{background:var(--amber);color:#111}
+
+/* ─ inverter→motor animation ─ */
+.sw rect.body{fill:#161A22;stroke:#A9BEEF;stroke-width:1.6}
+.sw .gate{fill:var(--amber);opacity:.12}
+.sw.a .gate{animation:gate 1.8s steps(1) infinite}
+.sw.b .gate{animation:gate 1.8s steps(1) .9s infinite}
+@keyframes gate{0%,49%{opacity:1}50%,100%{opacity:.12}}
+.sw.p2.a .gate{animation-delay:.6s}.sw.p2.b .gate{animation-delay:1.5s}
+.sw.p3.a .gate{animation-delay:1.2s}.sw.p3.b .gate{animation-delay:.3s}
+.wave{fill:none;stroke-width:2.4;stroke-linecap:round}
+.wave.u{stroke:var(--blue-2)} .wave.v{stroke:var(--amber)} .wave.w{stroke:#4ADE80}
+.flow{stroke-dasharray:6 8;animation:flow 1.2s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-28}}
+.rotor{transform-origin:445px 150px;animation:spin 3.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pwm{stroke:#8FB3FF;stroke-width:1.6;fill:none;stroke-dasharray:420;animation:pwm 3s linear infinite}
+@keyframes pwm{to{stroke-dashoffset:-420}}
+@media (prefers-reduced-motion:reduce){
+  .sw .gate,.flow,.rotor,.pwm{animation:none!important}
+  .sw.a .gate{opacity:1}
+  html{scroll-behavior:auto}
+}
+
+/* ─ news ─ */
+.news-list .row{display:grid;grid-template-columns:110px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid var(--line);align-items:start}
+.news-list .row .d{color:var(--muted);font-size:14px;padding-top:2px}
+.news-list .row p{margin:0;white-space:pre-line}
+
+/* ─ research ─ */
+.area{display:grid;grid-template-columns:120px 1fr;gap:20px}
+.area .ic{width:120px;height:120px;border-radius:16px;background:var(--blue-soft);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.area .ic img{width:100%;height:100%;object-fit:contain;background:#fff;padding:6px}
+.area h3{font-size:19px;color:var(--navy);margin-bottom:8px}
+.area p{margin:0 0 10px;color:#C7D0E4;white-space:pre-line}
+@media (max-width:600px){.area{grid-template-columns:1fr}.area .ic{width:100%;height:120px}}
+.proj{display:grid;grid-template-columns:1fr auto;gap:10px 16px;padding:14px 0;border-bottom:1px solid var(--line);align-items:start}
+.proj .t{font-weight:600}
+.proj .s{color:var(--muted);font-size:14px}
+.proj .p{color:var(--muted);font-size:13.5px;white-space:nowrap}
+@media (max-width:600px){.proj{grid-template-columns:1fr}.proj .p{white-space:normal}}
+details.more summary{cursor:pointer;color:var(--blue);font-weight:700;padding:12px 0;list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"▸ ";}
+details.more[open] summary::before{content:"▾ ";}
+
+/* ─ professor ─ */
+.prof{display:grid;grid-template-columns:300px 1fr;gap:36px;align-items:start}
+@media (max-width:860px){.prof{grid-template-columns:1fr}}
+.prof .photo{aspect-ratio:3/3.6;border-radius:18px;background:linear-gradient(160deg,#1C2433,#121419);display:grid;place-items:center;color:var(--muted);overflow:hidden;border:1px solid var(--line)}
+.prof .photo img{width:100%;height:100%;object-fit:cover}
+.prof .photo .ph{text-align:center;font-size:13px;padding:20px}
+.prof .photo .ph svg{width:70px;height:70px;margin:0 auto 8px;display:block;opacity:.5}
+.prof .pname{margin-top:18px}
+.prof .pname h2{font-size:26px;color:var(--navy)}
+.prof .pname .role{color:var(--muted);font-weight:600}
+.prof .ct{margin-top:14px;font-size:14.5px;display:grid;gap:6px}
+.prof .ct div{display:flex;gap:8px;align-items:baseline}
+.prof .ct .k{color:var(--muted);min-width:44px;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.prof .ext{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)}
+.tl li:last-child{border:0}
+.tl .per{color:var(--muted);font-size:14px}
+@media (max-width:520px){.tl li{grid-template-columns:1fr;gap:2px}}
+.bio{font-size:16.5px;white-space:pre-line}
+ul.plain{margin:0;padding-left:20px} ul.plain li{margin:4px 0}
+
+/* ─ members ─ */
+.mem{display:flex;gap:16px;align-items:flex-start}
+.mem .av{width:72px;height:72px;border-radius:50%;background:var(--fill);color:#fff;display:grid;place-items:center;font-weight:800;font-size:22px;flex:none;overflow:hidden}
+.mem .av img{width:100%;height:100%;object-fit:cover}
+.mem h3{font-size:17px}
+.mem .r{color:var(--blue);font-size:13px;font-weight:700}
+.mem p{margin:6px 0 0;font-size:14px;color:#C7D0E4}
+.alumni{width:100%;border-collapse:collapse;font-size:14.5px}
+.alumni th{text-align:left;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;border-bottom:2px solid var(--line)}
+.alumni td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.alumni td.yr{color:var(--muted);white-space:nowrap}
+@media (max-width:600px){.alumni thead{display:none}.alumni tr{display:grid;grid-template-columns:1fr;padding:8px 0;border-bottom:1px solid var(--line)}.alumni td{border:0;padding:1px 0}.alumni td.yr{font-size:12.5px}}
+
+/* ─ alumni cards ─ */
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:14px;max-width:1100px}
+
+@media (max-width:600px){.agrid{grid-template-columns:repeat(3,1fr);gap:10px}}
+.acard{text-align:center}
+.aph{aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--fill);border:1px solid var(--line);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px}
+.aph img{width:100%;height:100%;object-fit:cover;display:block}
+.an{font-weight:700;margin-top:8px;font-size:15px}
+.ao{font-size:12.5px;color:var(--muted);line-height:1.35;margin-top:2px}
+.agrp{margin-bottom:10px}
+
+/* ─ publications ─ */
+.pubsum{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.pubsum .card{text-align:center;padding:16px}
+.pubsum b{display:block;font-size:28px;font-family:var(--mono);color:var(--navy)}
+.pubsum span{font-size:13px;color:var(--muted);font-weight:600}
+@media (max-width:600px){.pubsum{grid-template-columns:repeat(2,1fr)}}
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin-bottom:20px;overflow-x:auto}
+.tabs button{border:0;background:transparent;padding:10px 14px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-size:15px}
+.tabs button.on{color:var(--navy);border-color:var(--amber)}
+.pubyear{margin:22px 0 10px;font-size:20px;color:var(--navy);display:flex;align-items:center;gap:12px}
+.pubyear::after{content:"";flex:1;height:1px;background:var(--line)}
+.pub{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px}
+.pub .n{color:var(--muted);font-size:13px;padding-top:3px}
+.pub .ti{font-weight:600}
+.pub .au{color:#C7D0E4;font-size:14px}
+.pub .ve{color:var(--muted);font-size:13.5px;font-style:italic}
+.pub .ve .idx{font-style:normal;margin-left:6px}
+.pub .doi{font-size:13px;margin-left:6px}
+.pubnote{font-size:13px;color:var(--muted);margin-top:18px}
+
+/* ─ gallery ─ */
+.ev{margin-bottom:26px}
+.ev .evh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.ev .evh h3{font-size:19px;color:var(--navy)}
+.ev .evh .d{color:var(--muted);font-size:13.5px}
+.ev p.desc{margin:0 0 12px;color:#C7D0E4;white-space:pre-line}
+.photos{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:900px){.photos{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:600px){.photos{grid-template-columns:repeat(2,1fr)}}
+.ph{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:var(--bg-soft);border:1px solid var(--line);cursor:zoom-in}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.ph:hover img{transform:scale(1.04)}
+.ph .cap{position:absolute;left:0;right:0;bottom:0;padding:6px 9px;font-size:12px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff}
+.ph.empty-ph{display:grid;place-items:center;color:var(--muted);font-size:13px;cursor:default;border-style:dashed}
+.ph .ictl{position:absolute;top:6px;left:6px;z-index:2}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:600px){.strip{grid-template-columns:repeat(2,1fr)}}
+dialog.lb{background:transparent;border:0;max-width:min(96vw,1200px);width:auto;box-shadow:none;padding:0}
+dialog.lb img{max-width:min(96vw,1200px);max-height:84vh;border-radius:10px;display:block;margin:0 auto}
+dialog.lb .lbc{color:#fff;text-align:center;padding:10px;font-size:14px}
+dialog.lb .lbx{position:absolute;top:-4px;right:-4px;border:0;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer}
+dialog.lb::backdrop{background:rgba(0,0,0,.88)}
+
+/* ─ contact ─ */
+.contact{display:grid;grid-template-columns:1fr 1.2fr;gap:28px;align-items:start}
+@media (max-width:860px){.contact{grid-template-columns:1fr}}
+.contact .ct div{display:grid;grid-template-columns:72px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.contact .ct .k{color:var(--muted);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding-top:3px}
+.map{border-radius:16px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/11;background:var(--bg-soft)}
+.map iframe{filter:invert(.92) hue-rotate(180deg) saturate(.8)}
+.map iframe{width:100%;height:100%;border:0;display:block}
+
+/* ─ footer ─ */
+footer{border-top:1px solid var(--line);background:var(--bg-soft);padding:30px 0 40px;color:var(--muted);font-size:13.5px}
+footer .f{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+#adminBtn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer}
+
+/* ─ admin ─ */
+#adminBar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:90;background:#000;border-top:1px solid var(--line);color:#fff;padding:10px 16px;gap:8px;flex-wrap:wrap;align-items:center;box-shadow:0 -4px 20px rgba(0,0,0,.25)}
+body.admin #adminBar{display:flex}
+body.admin{padding-bottom:84px}
+#adminBar b{margin-right:6px}
+#adminBar button{border:1px solid #374151;background:#1F2937;color:#fff;border-radius:8px;padding:7px 11px;font-size:13px;cursor:pointer;font-weight:600}
+#adminBar button.save{background:var(--amber);color:#111;border-color:transparent}
+#adminBar .dirty{color:var(--amber);font-size:13px;margin-left:auto}
+body.admin [data-edit]{outline:1.5px dashed rgba(18,73,181,.55);outline-offset:2px;border-radius:3px;min-width:12px;cursor:text}
+body.admin [data-edit]:focus{outline:2px solid var(--amber);background:#2A2410}
+body.admin [data-edit]:empty::before{content:"(비어 있음)";color:#6B7A99}
+.ictl{display:none;gap:4px;margin:6px 0 2px}
+body.admin .ictl{display:inline-flex}
+.ictl button{border:1px solid #3A4150;background:#1A1F2B;border-radius:6px;font-size:12px;padding:2px 7px;cursor:pointer;color:var(--ink)}
+.ictl button:hover{background:var(--blue-soft)}
+.ictl button.del{color:#F87171}
+.addbtn{display:none;margin:10px 0;border:1.5px dashed var(--blue);color:var(--blue);background:transparent;border-radius:8px;padding:7px 12px;font-weight:700;cursor:pointer;font-size:13px}
+body.admin .addbtn{display:inline-block}
+body.admin [data-img]{cursor:pointer;outline:2px dashed rgba(18,73,181,.5);outline-offset:3px}
+dialog{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:16px;padding:0;max-width:560px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog .dlg{padding:24px}
+dialog h3{font-size:19px;color:var(--navy);margin-bottom:6px}
+dialog p.hint{color:var(--muted);font-size:13.5px;margin:0 0 14px;white-space:pre-line}
+dialog label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 4px}
+dialog input,dialog textarea,dialog select{width:100%;background:#000;color:var(--ink);border:1px solid #3A4150;border-radius:8px;padding:9px 11px;font:inherit;font-size:14.5px}
+dialog textarea{min-height:70px;resize:vertical}
+dialog .row{display:flex;gap:8px;align-items:center}
+dialog .row input{flex:1}
+dialog .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+dialog .err{color:#F87171;font-size:13.5px;margin-top:10px;min-height:1.2em}
+dialog .ok{color:#5EDB94}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#F5B23E;color:#111;padding:10px 16px;border-radius:10px;font-size:14px;z-index:99;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1}
+@media print{header,footer,#adminBar{display:none}main>section{display:block!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hdr">
+    <a class="brand" href="#home" id="brand">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M37.20 7.55 A25 25 0 0 1 55.78 39.73" fill="none" stroke="#F5B23E" stroke-width="6" stroke-linecap="round"/><path d="M50.58 48.73 A25 25 0 0 1 13.42 48.73" fill="none" stroke="#8FB3FF" stroke-width="6" stroke-linecap="round"/><path d="M8.22 39.73 A25 25 0 0 1 26.80 7.55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/><path d="M17 36 h6 v-10 h9 v14 h9 v-10 h6" fill="none" stroke="#FFFFFF" stroke-width="3.8" stroke-linejoin="round" stroke-linecap="round"/></svg></span>
+      <span><span class="sub" id="brandSub"></span><span class="nm" id="brandName"></span></span>
+    </a>
+    <nav class="main" id="nav" aria-label="주 메뉴"></nav>
+    <div class="lang" role="group" aria-label="언어 선택">
+      <button type="button" data-lang="ko">KO</button><button type="button" data-lang="en">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="page-home"><div class="wrap" id="pg-home"></div></section>
+  <section id="page-news"><div class="wrap" id="pg-news"></div></section>
+  <section id="page-research"><div class="wrap" id="pg-research"></div></section>
+  <section id="page-professor"><div class="wrap" id="pg-professor"></div></section>
+  <section id="page-members"><div class="wrap" id="pg-members"></div></section>
+  <section id="page-publications"><div class="wrap" id="pg-publications"></div></section>
+  <section id="page-gallery"><div class="wrap" id="pg-gallery"></div></section>
+  <section id="page-contact"><div class="wrap" id="pg-contact"></div></section>
+</main>
+
+<footer>
+  <div class="wrap f">
+    <div id="footText"></div>
+    <button type="button" id="adminBtn">관리자</button>
+  </div>
+</footer>
+
+<div id="adminBar" role="region" aria-label="관리자 도구">
+  <b>관리자 모드</b>
+  <button type="button" data-act="save" class="save">저장 및 게시</button>
+  <button type="button" data-act="site">사이트 설정</button>
+  <button type="button" data-act="download">파일로 내려받기</button>
+  <button type="button" data-act="backup">데이터 백업</button>
+  <button type="button" data-act="restore">백업 불러오기</button>
+  <button type="button" data-act="stats">방문자 현황</button>
+  <button type="button" data-act="reset">비밀번호·키 재설정</button>
+  <button type="button" data-act="exit">편집 종료</button>
+  <span class="dirty" id="dirty"></span>
+</div>
+<dialog id="dlg"></dialog>
+<dialog id="lb" class="lb"><button type="button" class="lbx" aria-label="닫기">✕</button><img alt=""><div class="lbc"></div></dialog>
+<div class="toast" id="toast"></div>
+
+<script id="site-data" type="application/json">{
+ "site": {
+  "name": {
+   "ko": "전력변환연구실",
+   "en": "Power Conversion Laboratory"
+  },
+  "short": {
+   "ko": "전력변환연구실",
+   "en": "PCL"
+  },
+  "univ": {
+   "ko": "경남대학교",
+   "en": "Kyungnam University"
+  },
+  "dept": {
+   "ko": "전기공학과",
+   "en": "Department of Electrical Engineering"
+  },
+  "tagline": {
+   "ko": "전기 에너지를 바꾸고, 전동기를 움직이는 기술",
+   "en": "Converting electric energy, driving the motors of tomorrow"
+  },
+  "email": "seonhwan@kyungnam.ac.kr",
+  "phone": "055-249-2744",
+  "fax": "0505-999-2164",
+  "room": {
+   "ko": "성훈관 110호 (전력변환실험실)",
+   "en": "Room 110, Seonghun-gwan (Power Conversion Lab)"
+  },
+  "address": {
+   "ko": "(51767) 경상남도 창원시 마산합포구 경남대학로 7, 경남대학교 성훈관 110호",
+   "en": "Room 110, Seonghun-gwan, Kyungnam University, 7 Kyungnamdaehak-ro, Masanhappo-gu, Changwon-si, Gyeongsangnam-do 51767, Republic of Korea"
+  },
+  "mapQuery": "경남대학교 성훈관",
+  "links": {
+   "scholar": "",
+   "orcid": "",
+   "researchgate": ""
+  },
+  "cvFile": "files/CV_Hwang.pdf",
+  "goatcounter": "",
+  "repoPath": "",
+  "overviewImage": ""
+ },
+ "hero": {
+  "intro": {
+   "ko": "전력변환연구실은 전기 에너지를 변환하는 회로를 설계하고 이를 제어하는 알고리즘을 연구합니다. 친환경 자동차·무인 이동체·가전제품에 들어가는 전동기 구동 드라이브와 신재생에너지용 전력변환장치를 개발합니다.",
+   "en": "The Power Conversion Laboratory designs power-conversion circuits and the control algorithms that run them. We develop motor drives for eco-friendly vehicles, unmanned vehicles and home appliances, and power converters for renewable energy systems."
+  },
+  "keywords": [
+   {
+    "ko": "전동기 드라이브 (PMSM·BLDC)",
+    "en": "Motor Drives (PMSM / BLDC)"
+   },
+   {
+    "ko": "다상 전동기 고장 진단·고장허용 운전",
+    "en": "Multiphase Motor Fault Diagnosis & Fault-Tolerant Control"
+   },
+   {
+    "ko": "센서리스 제어",
+    "en": "Sensorless Control"
+   },
+   {
+    "ko": "계통연계 인버터·DC-DC 컨버터",
+    "en": "Grid-Tied Inverters & DC-DC Converters"
+   },
+   {
+    "ko": "HILS·모델기반설계(MBD)",
+    "en": "HILS & Model-Based Design"
+   }
+  ],
+  "stats": [
+   {
+    "key": "intlJournal",
+    "label": {
+     "ko": "국제 저널",
+     "en": "Int'l Journals"
+    }
+   },
+   {
+    "key": "intlConf",
+    "label": {
+     "ko": "국제 학술대회",
+     "en": "Int'l Conferences"
+    }
+   },
+   {
+    "key": "projects",
+    "label": {
+     "ko": "수행 과제",
+     "en": "Research Projects"
+    }
+   },
+   {
+    "key": "alumni",
+    "label": {
+     "ko": "졸업생",
+     "en": "Alumni"
+    }
+   }
+  ],
+  "overviewImage": ""
+ },
+ "news": [
+  {
+   "date": "2026-02",
+   "text": {
+    "ko": "김연희·백진찬 석사 졸업 — 각각 MNC솔루션, 지엠비코리아 입사",
+    "en": "Yeon-Hee Kim and Jin-Chan Baek received M.S. degrees and joined MNC Solution and GMB Korea"
+   },
+   "link": ""
+  },
+  {
+   "date": "2025-11",
+   "text": {
+    "ko": "IEEE ITEC Asia-Pacific 2025 (싱가포르)에서 논문 2편 발표 — 듀얼 3상 인버터 스위치 개방 고장 검출 / 공통모드 누설전류 저감",
+    "en": "Two papers presented at IEEE ITEC Asia-Pacific 2025, Singapore — open-switch fault detection and common-mode leakage current mitigation in dual three-phase inverters"
+   },
+   "link": ""
+  },
+  {
+   "date": "2025-02",
+   "text": {
+    "ko": "김명재·신진재·권태현·이재원 석사 졸업 — 한국전기연구원, MNC솔루션, 지엠비코리아 입사",
+    "en": "Four students received M.S. degrees and joined KERI, MNC Solution and GMB Korea"
+   },
+   "link": ""
+  },
+  {
+   "date": "2024-10",
+   "text": {
+    "ko": "IEEE ECCE 2024 (미국 피닉스)에서 비대칭 6상 PMSM 스위치 개방 고장 검출 논문 2편 발표",
+    "en": "Two papers on open-switch fault detection for asymmetric six-phase PMSM drives presented at IEEE ECCE 2024, Phoenix, USA"
+   },
+   "link": ""
+  },
+  {
+   "date": "2024-03",
+   "text": {
+    "ko": "한국항공우주연구원 기본사업 「이중화 전기 엔진의 고장 검출 및 고장 허용 운전」 과제 시작 (~2026.12)",
+    "en": "New project with Korea Aerospace Research Institute started: fault detection and fault-tolerant operation of redundant electric engines (through Dec. 2026)"
+   },
+   "link": ""
+  },
+  {
+   "date": "2024-02",
+   "text": {
+    "ko": "안효진·권수민·전재욱·조현아 석사 졸업",
+    "en": "Four students received M.S. degrees"
+   },
+   "link": ""
+  },
+  {
+   "date": "2023-08",
+   "text": {
+    "ko": "연구실 하계 워크숍",
+    "en": "Lab summer retreat"
+   },
+   "link": ""
+  },
+  {
+   "date": "2023-03",
+   "text": {
+    "ko": "황선환 교수 정교수 승진",
+    "en": "Prof. Seon-Hwan Hwang promoted to Full Professor"
+   },
+   "link": ""
+  },
+  {
+   "date": "2022-11",
+   "text": {
+    "ko": "추계 학술대회 참가 (제주)",
+    "en": "Fall academic conference, Jeju"
+   },
+   "link": ""
+  },
+  {
+   "date": "2022-08",
+   "text": {
+    "ko": "연구실 설립 10주년",
+    "en": "10th anniversary of the laboratory"
+   },
+   "link": ""
+  }
+ ],
+ "research": {
+  "intro": {
+   "ko": "저전압 전동기 구동 시스템을 중심으로, 회로 설계부터 제어 알고리즘·고장 진단·검증(HILS)까지 전력변환의 전 과정을 다룹니다.",
+   "en": "Centered on low-voltage motor-drive systems, we cover the whole power-conversion chain: circuit design, control algorithms, fault diagnosis and HILS-based verification."
+  },
+  "areas": [
+   {
+    "title": {
+     "ko": "전동기 구동 (Motor Drive)",
+     "en": "Motor Drives"
+    },
+    "desc": {
+     "ko": "BLDC·PMSM·유도전동기·SynRM를 대상으로 전동식 워터펌프, 냉각 팬, 오일 쿨러, 압축기 등의 구동 장치를 개발합니다. 위치센서 기반 구동과 센서리스 구동을 모두 연구하며, 고효율·저진동·저소음 운전을 목표로 합니다.",
+     "en": "We develop drives for BLDC, PMSM, induction and SynRM machines used in electric water pumps, cooling fans, oil coolers and compressors. Both sensored and sensorless control are studied, targeting high efficiency and low vibration and noise."
+    },
+    "tags": [
+     "PMSM",
+     "BLDC",
+     "Sensorless",
+     "FOC",
+     "EWP"
+    ],
+    "image": ""
+   },
+   {
+    "title": {
+     "ko": "다상 전동기 고장 진단·고장허용 운전",
+     "en": "Multiphase Drives: Fault Diagnosis & Fault-Tolerant Control"
+    },
+    "desc": {
+     "ko": "항공·무인이동체용 비대칭 6상 PMSM과 듀얼 3상 인버터를 대상으로 스위치 개방 고장 검출, 고장허용 운전, 이중화 구동 기법을 연구합니다. 직류단 전류·정지좌표계 dq 전류 기반의 검출 기법을 제안하고 HILS로 검증합니다.",
+     "en": "For asymmetric six-phase PMSMs and dual three-phase inverters in aerospace and unmanned-vehicle applications, we study open-switch fault detection, fault-tolerant operation and redundant drive schemes, verified with HILS."
+    },
+    "tags": [
+     "6-phase PMSM",
+     "Dual inverter",
+     "Fault detection",
+     "HILS"
+    ],
+    "image": "images/research-6phase.png"
+   },
+   {
+    "title": {
+     "ko": "신재생에너지용 전력변환 H/W·S/W",
+     "en": "Power Converters for Renewable Energy"
+    },
+    "desc": {
+     "ko": "양방향 3상 PWM 컨버터, 계통연계형 인버터, 리튬이온·슈퍼커패시터용 양방향 DC-DC 컨버터, 무정전전원장치(UPS)의 하드웨어와 제어 소프트웨어를 개발합니다. SRF-PLL 옵셋 오차 보상 등 계통 동기화 기법을 연구합니다.",
+     "en": "We develop hardware and control software for bidirectional three-phase PWM converters, grid-tied inverters, bidirectional DC-DC converters for Li-ion and supercapacitor storage, and UPS systems, including grid-synchronisation techniques such as SRF-PLL offset-error compensation."
+    },
+    "tags": [
+     "Grid-tied inverter",
+     "DC-DC",
+     "UPS",
+     "PLL"
+    ],
+    "image": ""
+   },
+   {
+    "title": {
+     "ko": "가전용 전동기 제어",
+     "en": "Motor Control for Home Appliances"
+    },
+    "desc": {
+     "ko": "세탁기·건조기·냉장고·청소기용 단상/3상 전동기의 캡리스(capless) 구동, 센서리스 기동, 효율 개선, 누설전류·공통모드 전압 저감 알고리즘을 산업체와 공동으로 개발합니다.",
+     "en": "With industry partners we develop capless drives, sensorless starting, efficiency improvement and leakage-current/common-mode-voltage reduction for single- and three-phase motors in washers, dryers, refrigerators and vacuum cleaners."
+    },
+    "tags": [
+     "Capless",
+     "Single-phase PMSM",
+     "Leakage current"
+    ],
+    "image": ""
+   }
+  ],
+  "ongoing": [
+   {
+    "title": {
+     "ko": "솔레노이드 드라이버 제어 소프트웨어 개발",
+     "en": "Solenoid driver control software development"
+    },
+    "sponsor": {
+     "ko": "(주)씨앤지",
+     "en": "CNG Co., Ltd."
+    },
+    "period": "2025.07 – 2026.06"
+   },
+   {
+    "title": {
+     "ko": "단상 캡리스 제어 알고리즘 개발",
+     "en": "Single-phase capless control algorithm development"
+    },
+    "sponsor": {
+     "ko": "LG전자",
+     "en": "LG Electronics"
+    },
+    "period": "2025.04 – 2026.03"
+   },
+   {
+    "title": {
+     "ko": "건조기 부스트 캡리스 기술 성능 한계 극복",
+     "en": "Overcoming performance limits of dryer boost capless technology"
+    },
+    "sponsor": {
+     "ko": "LG전자",
+     "en": "LG Electronics"
+    },
+    "period": "2025.04 – 2026.03"
+   },
+   {
+    "title": {
+     "ko": "이중화 전기 엔진의 고장 검출 및 고장 허용 운전",
+     "en": "Fault detection and fault-tolerant operation of redundant electric engines"
+    },
+    "sponsor": {
+     "ko": "한국항공우주연구원 (기본사업)",
+     "en": "Korea Aerospace Research Institute"
+    },
+    "period": "2024.03 – 2026.12"
+   },
+   {
+    "title": {
+     "ko": "다중화 구동장치 적용 다상 전동기의 고장허용 운전 기법",
+     "en": "Fault-tolerant operation of multiphase motors with multiplexed drives"
+    },
+    "sponsor": {
+     "ko": "과학기술정보통신부 무인이동체 원천기술개발사업",
+     "en": "Ministry of Science and ICT — Unmanned Vehicle Core Technology R&D"
+    },
+    "period": "2020.06 – 2026.12"
+   }
+  ],
+  "completed": [
+   {
+    "title": {
+     "ko": "지역지능화혁신인재양성(경남대학교) 1단계",
+     "en": "Regional Intelligence Innovation Talent Program (Kyungnam Univ.), Phase 1"
+    },
+    "sponsor": {
+     "ko": "정보통신기획평가원·산업통상자원부",
+     "en": "IITP / MOTIE"
+    },
+    "period": "2024.07 – 2025.12"
+   },
+   {
+    "title": {
+     "ko": "수소연료전지 기반 하이브리드 분산 전기추진 시스템",
+     "en": "Hydrogen fuel-cell based hybrid distributed electric propulsion system"
+    },
+    "sponsor": {
+     "ko": "연구개발특구진흥재단",
+     "en": "INNOPOLIS Foundation"
+    },
+    "period": "2023.04 – 2025.12"
+   },
+   {
+    "title": {
+     "ko": "능동형 가변 스위칭 주파수 제어 알고리즘 개발",
+     "en": "Active variable switching-frequency control algorithm"
+    },
+    "sponsor": {
+     "ko": "LG전자",
+     "en": "LG Electronics"
+    },
+    "period": "2024.08 – 2025.08"
+   },
+   {
+    "title": {
+     "ko": "최대이륙중량 200kg급 비행체용 순정격출력 30kW급 연료전지 파워팩 시스템 개발",
+     "en": "30 kW fuel-cell power-pack for a 200 kg-MTOW aircraft"
+    },
+    "sponsor": {
+     "ko": "산업통상자원부 (신재생에너지)",
+     "en": "MOTIE (Renewable Energy)"
+    },
+    "period": "2021.05 – 2025.04"
+   },
+   {
+    "title": {
+     "ko": "스위칭 주파수 특성에 Robust한 누설전류 솔루션 개발",
+     "en": "Leakage-current solution robust to switching-frequency characteristics"
+    },
+    "sponsor": {
+     "ko": "LG전자",
+     "en": "LG Electronics"
+    },
+    "period": "2024.04 – 2025.03"
+   },
+   {
+    "title": {
+     "ko": "수소전기상용차 냉각순환시스템용 공통요소부품 기술 개발",
+     "en": "Common component technologies for cooling-circulation systems of hydrogen fuel-cell commercial vehicles"
+    },
+    "sponsor": {
+     "ko": "한국산업기술평가관리원 (지엠비코리아)",
+     "en": "KEIT / GMB Korea"
+    },
+    "period": "2022.04 – 2024.12"
+   },
+   {
+    "title": {
+     "ko": "하프 브리지 방식의 저전압 절연형 DC/DC 컨버터 개발",
+     "en": "Half-bridge low-voltage isolated DC/DC converter"
+    },
+    "sponsor": {
+     "ko": "(주)효원파워텍",
+     "en": "Hyowon Powertech"
+    },
+    "period": "2023.07 – 2024.03"
+   },
+   {
+    "title": {
+     "ko": "냉장고 레시프로 컴프 실시간 권선저항 추정",
+     "en": "Real-time winding-resistance estimation for refrigerator reciprocating compressors"
+    },
+    "sponsor": {
+     "ko": "LG전자",
+     "en": "LG Electronics"
+    },
+    "period": "2023.05 – 2023.12"
+   },
+   {
+    "title": {
+     "ko": "다상 제어시스템 고장진단알고리즘 개발",
+     "en": "Fault-diagnosis algorithm for multiphase control systems"
+    },
+    "sponsor": {
+     "ko": "코렌스EM",
+     "en": "Corens EM"
+    },
+    "period": "2023.05 – 2023.12"
+   },
+   {
+    "title": {
+     "ko": "고속 운전을 위한 GaN 기반 48V 시스템용 단상 영구자석 동기 전동기의 제어기법",
+     "en": "Control of single-phase PMSM for GaN-based 48 V high-speed systems"
+    },
+    "sponsor": {
+     "ko": "한국연구재단 (기초연구)",
+     "en": "National Research Foundation of Korea"
+    },
+    "period": "2020.06 – 2023.02"
+   },
+   {
+    "title": {
+     "ko": "미래차 스케이트보드 플랫폼 개발을 위한 370V, 50kW 4륜 인휠모터의 토크벡터링 제어 TVS 개발",
+     "en": "Torque-vectoring system for 370 V / 50 kW four-wheel in-wheel motors (skateboard platform)"
+    },
+    "sponsor": {
+     "ko": "중소벤처기업부",
+     "en": "Ministry of SMEs and Startups"
+    },
+    "period": "2021.04 – 2022.12"
+   },
+   {
+    "title": {
+     "ko": "LINC 3.0 — Zigbee 무선통신 기반 전압·전류 모니터링 및 차단 제어장치 개발",
+     "en": "LINC 3.0 — Zigbee-based voltage/current monitoring and breaker control unit"
+    },
+    "sponsor": {
+     "ko": "한국연구재단·교육부",
+     "en": "NRF / Ministry of Education"
+    },
+    "period": "2022.07 – 2022.12"
+   },
+   {
+    "title": {
+     "ko": "6상 모터 제어기 개발",
+     "en": "Six-phase motor controller development"
+    },
+    "sponsor": {
+     "ko": "코렌스EM",
+     "en": "Corens EM"
+    },
+    "period": "2022.03 – 2022.11"
+   },
+   {
+    "title": {
+     "ko": "저전압 600W급 수소전기차용 고내구 전동식 워터펌프 개발",
+     "en": "600 W low-voltage high-durability electric water pump for FCEVs"
+    },
+    "sponsor": {
+     "ko": "한국산업기술진흥원",
+     "en": "KIAT"
+    },
+    "period": "2021.06 – 2022.05"
+   },
+   {
+    "title": {
+     "ko": "전동식 워터펌프(EWP) 구동용 제어 시스템의 모델기반설계",
+     "en": "Model-based design of the EWP drive control system"
+    },
+    "sponsor": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "period": "2021.09 – 2021.12"
+   },
+   {
+    "title": {
+     "ko": "연료전지 발전기 공기블로워 모터용 50,000rpm급 제어기 개발",
+     "en": "50,000 rpm controller for fuel-cell air-blower motors"
+    },
+    "sponsor": {
+     "ko": "교육부",
+     "en": "Ministry of Education"
+    },
+    "period": "2021.05 – 2021.12"
+   },
+   {
+    "title": {
+     "ko": "항공전기차 장착용 다상구동시스템 개발",
+     "en": "Multiphase drive system for electric aircraft"
+    },
+    "sponsor": {
+     "ko": "한국전기연구원",
+     "en": "KERI"
+    },
+    "period": "2021.02 – 2021.11"
+   },
+   {
+    "title": {
+     "ko": "소형풍력발전시스템 구축을 위한 3kW급 Dual RFPM 발전기의 코깅토크 저감 및 계통연계형 전력변환기의 제어 알고리즘 설계",
+     "en": "Cogging-torque reduction of a 3 kW dual RFPM generator and grid-tied converter control for small wind systems"
+    },
+    "sponsor": {
+     "ko": "한국전력공사 전력연구원",
+     "en": "KEPCO Research Institute"
+    },
+    "period": "2019.05 – 2021.04"
+   },
+   {
+    "title": {
+     "ko": "배터리 기반 스마트 모빌리티 시스템의 전력 제어와 SOC 오차율 개선 및 ICT 모니터링 시스템 개발",
+     "en": "Power control, SOC-error improvement and ICT monitoring for battery-based smart mobility"
+    },
+    "sponsor": {
+     "ko": "경상남도지역혁신플랫폼 (세원공업)",
+     "en": "Gyeongnam Regional Innovation Platform / Sewon"
+    },
+    "period": "2020.12 – 2021.04"
+   },
+   {
+    "title": {
+     "ko": "차세대 고속 스위칭 소자 기반 근거리 이동·운반 수단용 Smart Charger 및 ICT 융합 에너지 모니터링 시스템 개발",
+     "en": "WBG-based smart charger and ICT energy-monitoring system for short-range mobility"
+    },
+    "sponsor": {
+     "ko": "경상남도지역혁신플랫폼 (파워이모렉)",
+     "en": "Gyeongnam Regional Innovation Platform / Power Emorec"
+    },
+    "period": "2020.12 – 2021.04"
+   },
+   {
+    "title": {
+     "ko": "청년TLO 육성사업",
+     "en": "Young TLO Program"
+    },
+    "sponsor": {
+     "ko": "과학기술정보통신부",
+     "en": "Ministry of Science and ICT"
+    },
+    "period": "2019.03 – 2021.02"
+   },
+   {
+    "title": {
+     "ko": "연료전지 상용차용 200kW급 스택 열관리를 위한 고전압 고용량 전동식 워터펌프 개발",
+     "en": "High-voltage high-capacity EWP for 200 kW fuel-cell stack thermal management"
+    },
+    "sponsor": {
+     "ko": "산업통상자원부",
+     "en": "MOTIE"
+    },
+    "period": "2019.04 – 2020.12"
+   },
+   {
+    "title": {
+     "ko": "세탁기 운전성능 개발",
+     "en": "Washing-machine drive performance development"
+    },
+    "sponsor": {
+     "ko": "LG전자",
+     "en": "LG Electronics"
+    },
+    "period": "2020.03 – 2020.11"
+   },
+   {
+    "title": {
+     "ko": "전기자동차의 E-powertrain 냉각용 Sintered magnet이 적용된 저소음(68dB) 150W급 EWP 개발",
+     "en": "Low-noise (68 dB) 150 W EWP with sintered magnets for EV e-powertrain cooling"
+    },
+    "sponsor": {
+     "ko": "지엠비코리아·산업통상자원부",
+     "en": "GMB Korea / MOTIE"
+    },
+    "period": "2018.10 – 2019.09"
+   },
+   {
+    "title": {
+     "ko": "Linear Comp. 구동 효율 개선 알고리즘 개발",
+     "en": "Efficiency-improvement algorithm for linear compressor drives"
+    },
+    "sponsor": {
+     "ko": "LG전자",
+     "en": "LG Electronics"
+    },
+    "period": "2018.04 – 2019.06"
+   },
+   {
+    "title": {
+     "ko": "전동식 워터펌프 구동 시스템 설계 및 제어기술 전문인력 양성",
+     "en": "Training program: EWP drive-system design and control"
+    },
+    "sponsor": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "period": "2018.07 – 2019.06"
+   },
+   {
+    "title": {
+     "ko": "고속 운전용 단상 BLDCM의 센서리스 구동 알고리즘 성능 개선",
+     "en": "Improved sensorless algorithm for high-speed single-phase BLDC motors"
+    },
+    "sponsor": {
+     "ko": "LG전자",
+     "en": "LG Electronics"
+    },
+    "period": "2018.05 – 2019.04"
+   },
+   {
+    "title": {
+     "ko": "원격제어기능의 48V 모터 드라이브 및 모사장치 개발",
+     "en": "Remote-controlled 48 V motor drive and emulator"
+    },
+    "sponsor": {
+     "ko": "정보통신산업진흥원 (애니토이)",
+     "en": "NIPA / Anytoy"
+    },
+    "period": "2018.05 – 2019.03"
+   },
+   {
+    "title": {
+     "ko": "멀티전원 기반 단상 캐스캐이드 멀티레벨 인버터의 제어기법 개발",
+     "en": "Control of multi-source single-phase cascaded multilevel inverters"
+    },
+    "sponsor": {
+     "ko": "교육부 (기초연구)",
+     "en": "Ministry of Education (Basic Research)"
+    },
+    "period": "2018.03 – 2019.02"
+   },
+   {
+    "title": {
+     "ko": "쿨링 팬용 200W급 BLDC 센서리스 모터 드라이브 개발",
+     "en": "200 W sensorless BLDC drive for cooling fans"
+    },
+    "sponsor": {
+     "ko": "LINC+ 사업단·교육부",
+     "en": "LINC+ / Ministry of Education"
+    },
+    "period": "2018.07 – 2018.12"
+   },
+   {
+    "title": {
+     "ko": "슈퍼 커패시터 융합형 10kW급 에너지관리시스템 개발",
+     "en": "10 kW energy-management system with supercapacitor integration"
+    },
+    "sponsor": {
+     "ko": "산업통상자원부 ((주)키스톤에너지)",
+     "en": "MOTIE / Keystone Energy"
+    },
+    "period": "2017.06 – 2018.12"
+   },
+   {
+    "title": {
+     "ko": "슈퍼 커패시터 기반 BESS 연계형 양방향 전력변환장치 개발",
+     "en": "Bidirectional converter for supercapacitor-based BESS"
+    },
+    "sponsor": {
+     "ko": "LINC+ 사업단·교육부",
+     "en": "LINC+ / Ministry of Education"
+    },
+    "period": "2017.08 – 2017.12"
+   },
+   {
+    "title": {
+     "ko": "가변속 제어기술을 활용한 에너지 절감형 공작기계용 오일쿨러 개발",
+     "en": "Energy-saving variable-speed oil cooler for machine tools"
+    },
+    "sponsor": {
+     "ko": "산업통상자원부 ((주)하이드텍)",
+     "en": "MOTIE / Hydtech"
+    },
+    "period": "2016.06 – 2017.05"
+   },
+   {
+    "title": {
+     "ko": "BIPV 플랜트 발전성능 향상을 위한 20kW급 IoT형 전력제어시스템 개발",
+     "en": "20 kW IoT power-control system for BIPV plants"
+    },
+    "sponsor": {
+     "ko": "산업통상자원부 ((주)키스톤에너지)",
+     "en": "MOTIE / Keystone Energy"
+    },
+    "period": "2016.03 – 2017.02"
+   },
+   {
+    "title": {
+     "ko": "냉동고용 Comp. Soft Starting 알고리즘 개발",
+     "en": "Soft-starting algorithm for freezer compressors"
+    },
+    "sponsor": {
+     "ko": "산업통상자원부·LG전자",
+     "en": "MOTIE / LG Electronics"
+    },
+    "period": "2017"
+   },
+   {
+    "title": {
+     "ko": "소형 태양광 발전 및 ESS 기반 휴대형 충전기 개발",
+     "en": "Portable charger based on small PV and ESS"
+    },
+    "sponsor": {
+     "ko": "LINC 사업단·교육부",
+     "en": "LINC / Ministry of Education"
+    },
+    "period": "2016.07 – 2016.12"
+   },
+   {
+    "title": {
+     "ko": "ARM Core 기반의 다축 구동 시스템 개발",
+     "en": "ARM-core based multi-axis drive system"
+    },
+    "sponsor": {
+     "ko": "교육부 LINC (씨앤지)",
+     "en": "LINC / Ministry of Education (CNG)"
+    },
+    "period": "2015.07 – 2016.07"
+   },
+   {
+    "title": {
+     "ko": "독립 다상 모듈 기반 영구자석형 횡자속 발전기 제어기술 개발",
+     "en": "Control of independent multi-module PM transverse-flux generators"
+    },
+    "sponsor": {
+     "ko": "미래창조과학부 (신진연구)",
+     "en": "MSIP (New Researcher Program)"
+    },
+    "period": "2013.06 – 2016.05"
+   },
+   {
+    "title": {
+     "ko": "SMBus 기반 광학필터휠 스텝모터 구동 알고리즘 개발",
+     "en": "SMBus-based stepper-motor drive for optical filter wheels"
+    },
+    "sponsor": {
+     "ko": "지노테크",
+     "en": "Jinotech"
+    },
+    "period": "2016.03"
+   },
+   {
+    "title": {
+     "ko": "고조파 제거를 통한 절전형 UPS 시스템 개발",
+     "en": "Energy-saving UPS with harmonic elimination"
+    },
+    "sponsor": {
+     "ko": "중소기업청 ((주)성신전자)",
+     "en": "SMBA / Sungshin Electronics"
+    },
+    "period": "2014.12 – 2015.11"
+   },
+   {
+    "title": {
+     "ko": "멀티모듈형 베어링리스 영구자석 풍력발전기 컨버터 토폴로지 개발",
+     "en": "Converter topology for multi-module bearingless PM wind generators"
+    },
+    "sponsor": {
+     "ko": "미래창조과학부 (한국전기연구원)",
+     "en": "MSIP / KERI"
+    },
+    "period": "2014.07 – 2015.11"
+   },
+   {
+    "title": {
+     "ko": "WPAN 기반 HMI를 활용한 에너지 절감형 하이브리드 사출성형시스템 개발",
+     "en": "Energy-saving hybrid injection-moulding system with WPAN-based HMI"
+    },
+    "sponsor": {
+     "ko": "중소기업청 ((주)경성하이테크)",
+     "en": "SMBA / Kyungsung Hi-Tech"
+    },
+    "period": "2014.10 – 2015.09"
+   },
+   {
+    "title": {
+     "ko": "워터펌프용 BLAC 제어기의 H/W 및 S/W 검증에 관한 연구",
+     "en": "H/W and S/W verification of BLAC controllers for water pumps"
+    },
+    "sponsor": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "period": "2015.07 – 2015.08"
+   },
+   {
+    "title": {
+     "ko": "단상 무정전전원장치 구동 시스템 개발",
+     "en": "Single-phase UPS drive system"
+    },
+    "sponsor": {
+     "ko": "중소기업청",
+     "en": "Small and Medium Business Administration"
+    },
+    "period": "2014 – 2015"
+   },
+   {
+    "title": {
+     "ko": "횡자속 선형추진시스템 자기부상 공극제어 및 추진제어 알고리즘 개발",
+     "en": "Air-gap levitation and propulsion control for transverse-flux linear propulsion"
+    },
+    "sponsor": {
+     "ko": "미래창조과학부 (한국전기연구원)",
+     "en": "MSIP / KERI"
+    },
+    "period": "2013.05 – 2013.12"
+   },
+   {
+    "title": {
+     "ko": "선박통합제어시스템 성능 검증 및 운용 시뮬레이션을 위한 클라우드 기반 솔루션 개발 (참여)",
+     "en": "Cloud-based solution for verification and operation simulation of integrated ship control systems (participant)"
+    },
+    "sponsor": {
+     "ko": "미래창조과학부 (정보통신산업진흥원)",
+     "en": "MSIP / NIPA"
+    },
+    "period": "2012 – 2013"
+   }
+  ],
+  "collab": {
+   "title": {
+    "ko": "산학협력",
+    "en": "Industry–Academia Collaboration"
+   },
+   "intro": {
+    "ko": "LG전자와 지엠비코리아의 우수 협력 연구실로 지정되어 전동기·인버터 기술을 공동 개발하고 있으며, 석사 졸업생 23명이 자동차·가전·방산 분야 기업과 연구소에서 일하고 있습니다.",
+    "en": "Designated as a collaborative research laboratory by LG Electronics and GMB Korea, we co-develop motor and inverter technologies; our 23 M.S. graduates work at companies and institutes in the automotive, appliance and defence sectors."
+   },
+   "images": [
+    {
+     "src": "images/plaque-lg.jpg",
+     "cap": {
+      "ko": "LG전자 우수 협력 연구실 (Motor & Inverter Technology Research Council)",
+      "en": "LG Electronics Collaborative Research Lab (Motor & Inverter Technology Research Council)"
+     }
+    },
+    {
+     "src": "images/plaque-gmb.jpg",
+     "cap": {
+      "ko": "GMB Korea 우수협력연구실",
+      "en": "GMB Korea Collaborative Research Center"
+     }
+    }
+   ]
+  }
+ },
+ "professor": {
+  "name": {
+   "ko": "황선환",
+   "en": "Seon-Hwan Hwang"
+  },
+  "title": {
+   "ko": "교수 · 공학박사",
+   "en": "Full Professor, Ph.D."
+  },
+  "photo": "images/professor.jpg",
+  "bio": {
+   "ko": "부산대학교에서 전기공학 학사·석사·박사 학위를 받았고(지도교수 김장목), 미국 플로리다주립대학교 CAPS(Center for Advanced Power Systems)에서 박사후연구원(2011–2012)과 방문학자(2024–2025)로 연구했습니다. 2012년부터 경남대학교 전기공학과에서 전력전자와 전동기 제어를 가르치고 있으며, 전력변환연구실을 이끌고 있습니다.",
+   "en": "Seon-Hwan Hwang received the B.S., M.S. and Ph.D. degrees in electrical engineering from Pusan National University (advisor: Prof. Jang-Mok Kim). He was a postdoctoral researcher (2011–2012) and a visiting scholar (2024–2025) at the Center for Advanced Power Systems (CAPS), Florida State University. Since 2012 he has been with the Department of Electrical Engineering, Kyungnam University, where he is a Full Professor and directs the Power Conversion Laboratory."
+  },
+  "interests": [
+   {
+    "ko": "PMSM·BLDC 전동기 드라이브 — 고속 단상 PMSM, 다상 PMSM 및 3상 PMSM 구동",
+    "en": "Motor drives for PMSM and BLDC — high-speed single-phase PMSMs, multiphase and three-phase PMSM drives"
+   },
+   {
+    "ko": "전력변환장치 — 풍력발전기 및 계통연계형 컨버터 제어, 전류제어·PLL·데드타임 보상·전력품질",
+    "en": "Power converters — control of wind-turbine generators and grid-connected converters; current control, PLL, dead-time compensation, power quality"
+   },
+   {
+    "ko": "S/W·H/W 구현 — DSP 기반 임베디드 시스템 및 HILS 설계",
+    "en": "Software/hardware implementation — DSP-based embedded systems and HILS"
+   }
+  ],
+  "education": [
+   {
+    "period": "2006.03 – 2011.02",
+    "text": {
+     "ko": "부산대학교 전기공학 박사 — 논문: 대형 직접구동 풍력발전용 MM-TFPMG의 제어 성능 연구 (지도교수 김장목)",
+     "en": "Ph.D., Electrical Engineering, Pusan National University — Dissertation: A Study of Control Performance of MM-TFPMG for Large-scale Direct-driven Wind Turbines (Advisor: Prof. Jang-Mok Kim)"
+    }
+   },
+   {
+    "period": "2004.03 – 2006.02",
+    "text": {
+     "ko": "부산대학교 전기공학 석사 — 논문: 전압형 PWM 인버터의 데드타임 보상 기법 (지도교수 김장목)",
+     "en": "M.S., Electrical Engineering, Pusan National University — Thesis: A Dead Time Compensation Method in Voltage-Fed PWM Inverter (Advisor: Prof. Jang-Mok Kim)"
+    }
+   },
+   {
+    "period": "1997.03 – 2004.02",
+    "text": {
+     "ko": "부산대학교 전기공학 학사",
+     "en": "B.S., Electrical Engineering, Pusan National University"
+    }
+   }
+  ],
+  "career": [
+   {
+    "period": "2023.03 – 현재",
+    "text": {
+     "ko": "경남대학교 전기공학과 교수 · 전력변환연구실 지도교수",
+     "en": "Full Professor, Department of Electrical Engineering, Kyungnam University · Director, Power Conversion Lab."
+    }
+   },
+   {
+    "period": "2024.02 – 2025.02",
+    "text": {
+     "ko": "미국 Florida State University, CAPS 방문학자 — 전력전자 및 전동기 드라이브 공동연구 (Prof. Hui Li)",
+     "en": "Visiting Scholar, CAPS, Florida State University, USA — collaborative research on power electronics and advanced motor drives (with Prof. Hui Li)"
+    }
+   },
+   {
+    "period": "2022.07 – 2024.01",
+    "text": {
+     "ko": "경남대학교 미래형자동차사업단 부단장 (미래형자동차 기술혁신인재양성사업)",
+     "en": "Vice Director, Future Automotive Project Group, Kyungnam University"
+    }
+   },
+   {
+    "period": "2018.03 – 2023.02",
+    "text": {
+     "ko": "경남대학교 전기공학과 부교수",
+     "en": "Associate Professor, Kyungnam University"
+    }
+   },
+   {
+    "period": "2015.02 – 2017.02",
+    "text": {
+     "ko": "경남대학교 LINC 사업단 기업지원센터장",
+     "en": "Director, Industry Support Center, LINC Project, Kyungnam University"
+    }
+   },
+   {
+    "period": "2012.03 – 2018.02",
+    "text": {
+     "ko": "경남대학교 전기공학과 조교수",
+     "en": "Assistant Professor, Kyungnam University"
+    }
+   },
+   {
+    "period": "2011.02 – 2012.02",
+    "text": {
+     "ko": "미국 Florida State University, CAPS 박사후연구원 — DSP+FPGA 제어보드 설계, PMSM 드라이브 (Prof. Hui Li)",
+     "en": "Postdoctoral Researcher, CAPS, Florida State University, USA — DSP+FPGA control board design, PMSM drives (with Prof. Hui Li)"
+    }
+   }
+  ],
+  "activities": [
+   {
+    "period": "2026 – 현재",
+    "text": {
+     "ko": "대한전기학회 영문지(JEET, SCIE) 편집위원",
+     "en": "Editor, Journal of Electrical Engineering & Technology (JEET, SCIE), KIEE"
+    }
+   },
+   {
+    "period": "2014 – 현재",
+    "text": {
+     "ko": "한국조명·전기설비학회 부산울산경남지회 학술이사",
+     "en": "Academic Director, Busan–Ulsan–Gyeongnam Chapter, KIIEE"
+    }
+   },
+   {
+    "period": "2017 – 2024",
+    "text": {
+     "ko": "한국전력전자학회 영문지(Journal of Power Electronics) 편집위원",
+     "en": "Editorial Board Member, Journal of Power Electronics, KIPE"
+    }
+   },
+   {
+    "period": "2017 – 2023",
+    "text": {
+     "ko": "한국마린엔지니어링학회 편집위원",
+     "en": "Editorial Board Member, Korean Society of Marine Engineering"
+    }
+   },
+   {
+    "period": "2014 – 2017",
+    "text": {
+     "ko": "한국전력전자학회 국문지 편집위원",
+     "en": "Editorial Board Member, Transactions of KIPE"
+    }
+   },
+   {
+    "period": "2016 – 2017",
+    "text": {
+     "ko": "대한전기학회 전기기기 및 에너지변환시스템 부문회 학술이사",
+     "en": "Academic Director, Electrical Machinery and Energy Conversion Systems Society, KIEE"
+    }
+   },
+   {
+    "period": "리뷰어",
+    "text": {
+     "ko": "IEEE Transactions on Industrial Electronics / IEEE Transactions on Power Electronics / Journal of Power Electronics / Energies",
+     "en": "Reviewer: IEEE Trans. Industrial Electronics, IEEE Trans. Power Electronics, Journal of Power Electronics, Energies"
+    }
+   },
+   {
+    "period": "회원",
+    "text": {
+     "ko": "IEEE (2006–), 대한전기학회, 한국전력전자학회, 한국조명·전기설비학회",
+     "en": "Member: IEEE (since 2006), KIEE, KIPE, KIIEE"
+    }
+   }
+  ],
+  "patents": [
+   {
+    "period": "2019.07",
+    "text": {
+     "ko": "dq축 변환 기반 단상 유도전동기의 기동전류 저감 방법 및 장치 (등록 10-1998515)",
+     "en": "Starting Current Reduction Method and Device of Single-phase Induction Motor Based on dq-axis Transformation (KR 10-1998515)"
+    }
+   },
+   {
+    "period": "2018.05",
+    "text": {
+     "ko": "리튬이온 배터리와 슈퍼커패시터를 이용한 전력제어형 에너지관리시스템 (등록 10-1863141)",
+     "en": "Power Control Type Energy Management System Using Lithium Ion Battery and Super-capacitor (KR 10-1863141)"
+    }
+   },
+   {
+    "period": "2018.05",
+    "text": {
+     "ko": "리튬 배터리와 슈퍼커패시터를 이용한 전력제어형 에너지저장장치 (등록 10-1863138)",
+     "en": "Power-controlled Energy Storage Device Using Lithium Battery and Supercapacitor (KR 10-1863138)"
+    }
+   },
+   {
+    "period": "2017.10",
+    "text": {
+     "ko": "단상 계통연계형 인버터의 계통 주파수 변동에 따른 위상 오차 보상 방법 (등록 10-1789403)",
+     "en": "Phase Error Compensation Method According to the Grid Frequency Variation of Single-phase Grid-connected Inverters (KR 10-1789403)"
+    }
+   },
+   {
+    "period": "2017.08",
+    "text": {
+     "ko": "3상 계통연계형 인버터의 계통 위상각 추종 시 옵셋 및 스케일 오차 저감 방법 (등록 10-1768800)",
+     "en": "Offset and Scale Error Reduction Method According to Tracing Grid Phase Angle of Three-phase Grid-connected Inverters (KR 10-1768800)"
+    }
+   },
+   {
+    "period": "2017.07",
+    "text": {
+     "ko": "3상 PMSM 고성능 운전을 위한 전류 측정 오차 저감 방법 (등록 10-1763487)",
+     "en": "Reduction Method of Current Measurement Errors for High Performance Operation of Three-phase PMSM (KR 10-1763487)"
+    }
+   }
+  ]
+ },
+ "members": {
+  "phd": [
+   {
+    "name": {
+     "ko": "전소영",
+     "en": "So-Young Jun"
+    },
+    "role": {
+     "ko": "박사과정",
+     "en": "Ph.D. Student"
+    },
+    "topic": {
+     "ko": "다상 전동기 드라이브 제어 및 고장 진단 알고리즘 개발",
+     "en": "Multiphase motor drive control and fault-diagnosis algorithms"
+    },
+    "photo": "images/member-jun.jpg",
+    "email": ""
+   },
+   {
+    "name": {
+     "ko": "배연규",
+     "en": "Yeon-gyu Bae"
+    },
+    "role": {
+     "ko": "박사과정",
+     "en": "Ph.D. Student"
+    },
+    "topic": {
+     "ko": "IPMSM 제어 및 PLECS 가상 시뮬레이션 모의 알고리즘 개발",
+     "en": "IPMSM control and PLECS virtual-simulation algorithms"
+    },
+    "photo": "images/member-bae.jpg",
+    "email": ""
+   }
+  ],
+  "ms": [
+   {
+    "name": {
+     "ko": "윤영빈",
+     "en": "Yeong-Bin Yun"
+    },
+    "role": {
+     "ko": "석사과정 3학기",
+     "en": "M.S. Student (3rd semester)"
+    },
+    "topic": {
+     "ko": "UAM 제어 H/W 개발 및 S/W 개발",
+     "en": "UAM control hardware and software development"
+    },
+    "photo": "images/member-yun.jpg",
+    "email": ""
+   },
+   {
+    "name": {
+     "ko": "신근영",
+     "en": "Geun-Young Shin"
+    },
+    "role": {
+     "ko": "석사과정 1–2학기",
+     "en": "M.S. Student (1st–2nd semester)"
+    },
+    "topic": {
+     "ko": "다상 전동기 드라이브 제어 및 고장 진단 알고리즘 개발",
+     "en": "Multiphase motor drive control and fault-diagnosis algorithms"
+    },
+    "photo": "",
+    "email": ""
+   },
+   {
+    "name": {
+     "ko": "이예준",
+     "en": "Ye-Jun Lee"
+    },
+    "role": {
+     "ko": "석사과정 1–2학기",
+     "en": "M.S. Student (1st–2nd semester)"
+    },
+    "topic": {
+     "ko": "IPMSM 제어 및 PLECS 가상 시뮬레이션 모의 알고리즘 개발",
+     "en": "IPMSM control and PLECS virtual-simulation algorithms"
+    },
+    "photo": "",
+    "email": ""
+   }
+  ],
+  "ug": [
+   {
+    "name": {
+     "ko": "이광윤",
+     "en": "Kwang-Yun Lee"
+    },
+    "role": {
+     "ko": "학부연구생",
+     "en": "Undergraduate Researcher"
+    },
+    "topic": {
+     "ko": "",
+     "en": ""
+    },
+    "photo": "",
+    "email": ""
+   }
+  ],
+  "alumni": [
+   {
+    "date": "2026.02",
+    "name": {
+     "ko": "김연희",
+     "en": "Yeon-hui Kim"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "MNC솔루션",
+     "en": "MNC Solution"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-kim-yeon-hui.jpg"
+   },
+   {
+    "date": "2026.02",
+    "name": {
+     "ko": "백진찬",
+     "en": "Jin-chan Baek"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-baek-jin-chan.jpg"
+   },
+   {
+    "date": "2025.02",
+    "name": {
+     "ko": "김명재",
+     "en": "Myeong-Jae Kim"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "중소조선연구원",
+     "en": "Research Institute of Medium & Small Shipbuilding (RIMS)"
+    },
+    "position": {
+     "ko": "",
+     "en": ""
+    },
+    "photo": "images/alumni-kim-myeong-jae.jpg"
+   },
+   {
+    "date": "2025.02",
+    "name": {
+     "ko": "신진재",
+     "en": "Jin-Jae Shin"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "MNC솔루션",
+     "en": "MNC Solution"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-shin-jin-jae.jpg"
+   },
+   {
+    "date": "2025.02",
+    "name": {
+     "ko": "권태현",
+     "en": "Tae-hyeon Kwon"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-kwon-tae-hyeon.jpg"
+   },
+   {
+    "date": "2025.02",
+    "name": {
+     "ko": "이재원",
+     "en": "Jae-Won Lee"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-lee-jae-won.jpg"
+   },
+   {
+    "date": "2024.02",
+    "name": {
+     "ko": "안효진",
+     "en": "Hyo-Jin An"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "LG전자",
+     "en": "LG Electronics"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-an-hyo-jin.jpg"
+   },
+   {
+    "date": "2024.02",
+    "name": {
+     "ko": "권수민",
+     "en": "Soo-min Kwon"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-kwon-soo-min.jpg"
+   },
+   {
+    "date": "2024.02",
+    "name": {
+     "ko": "전재욱",
+     "en": "Jae-wook Jeon"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-jeon-jae-wook.jpg"
+   },
+   {
+    "date": "2024.02",
+    "name": {
+     "ko": "조현아",
+     "en": "Hyun-a Cho"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "씨앤지",
+     "en": "CNG"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-cho-hyun-a.jpg"
+   },
+   {
+    "date": "2023.02",
+    "name": {
+     "ko": "김한얼",
+     "en": "Han-eol Kim"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "현대위아",
+     "en": "Hyundai WIA"
+    },
+    "position": {
+     "ko": "",
+     "en": ""
+    },
+    "photo": "images/alumni-kim-han-eol.jpg"
+   },
+   {
+    "date": "2023.02",
+    "name": {
+     "ko": "신정우",
+     "en": "Jung-woo Shin"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "혜윰기술(주)",
+     "en": "Hyeyum Tech"
+    },
+    "position": {
+     "ko": "주임연구원",
+     "en": "Associate Researcher"
+    },
+    "photo": "images/alumni-shin-jung-woo.jpg"
+   },
+   {
+    "date": "2023.02",
+    "name": {
+     "ko": "유상민",
+     "en": "Sang-min Yoo"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-yoo-sang-min.jpg"
+   },
+   {
+    "date": "2022.02",
+    "name": {
+     "ko": "서승우",
+     "en": "Seung-woo Seo"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "두원공조",
+     "en": "Doowon Climate Control"
+    },
+    "position": {
+     "ko": "",
+     "en": ""
+    },
+    "photo": "images/alumni-seo-seung-woo.jpg"
+   },
+   {
+    "date": "2022.02",
+    "name": {
+     "ko": "이원석",
+     "en": "Won-suk Lee"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "두산 모트롤",
+     "en": "Doosan Mottrol"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-lee-won-suk.jpg"
+   },
+   {
+    "date": "2021.02",
+    "name": {
+     "ko": "이선영",
+     "en": "Sun-young Lee"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "LS오토모티브",
+     "en": "LS Automotive"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-lee-sun-young.jpg"
+   },
+   {
+    "date": "2020.02",
+    "name": {
+     "ko": "김태성",
+     "en": "Tae-sung Kim"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "한국자동차연구원",
+     "en": "KATECH"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-kim-tae-sung.jpg"
+   },
+   {
+    "date": "2019.02",
+    "name": {
+     "ko": "강형도",
+     "en": "Hyung-do Kang"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "HL만도",
+     "en": "HL Mando"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-kang-hyung-do.jpg"
+   },
+   {
+    "date": "2019.02",
+    "name": {
+     "ko": "하용호",
+     "en": "Young-ho Ha"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "Onsemi",
+     "en": "Onsemi"
+    },
+    "position": {
+     "ko": "선임연구원",
+     "en": "Senior Engineer"
+    },
+    "photo": "images/alumni-ha-young-ho.jpg"
+   },
+   {
+    "date": "2018.02",
+    "name": {
+     "ko": "김은수",
+     "en": "Eun-soo Kim"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "효성중공업",
+     "en": "Hyosung Heavy Industries"
+    },
+    "position": {
+     "ko": "Professional",
+     "en": "Professional"
+    },
+    "photo": "images/alumni-kim-eun-soo.jpg"
+   },
+   {
+    "date": "2017.02",
+    "name": {
+     "ko": "성의석",
+     "en": "Eui-seok Sung"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "국방과학연구소 방산기술센터",
+     "en": "Agency for Defense Development"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-sung-eui-seok.jpg"
+   },
+   {
+    "date": "2017.02",
+    "name": {
+     "ko": "정병국",
+     "en": "Byung-guk Jung"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "한국전기연구원",
+     "en": "KERI"
+    },
+    "position": {
+     "ko": "연구원",
+     "en": "Researcher"
+    },
+    "photo": "images/alumni-jung-byung-guk.jpg"
+   },
+   {
+    "date": "2017.02",
+    "name": {
+     "ko": "허찬녕",
+     "en": "Chan-nyeong Heo"
+    },
+    "degree": {
+     "ko": "석사",
+     "en": "M.S."
+    },
+    "org": {
+     "ko": "지엠비코리아",
+     "en": "GMB Korea"
+    },
+    "position": {
+     "ko": "책임연구원",
+     "en": "Principal Researcher"
+    },
+    "photo": "images/alumni-heo-chan-nyeong.jpg"
+   }
+  ]
+ },
+ "publications": {
+  "note": {
+   "ko": "굵게: 황선환 교수. 국내 논문은 원제(한글) 그대로 표기합니다.",
+   "en": "Bold: Prof. Seon-Hwan Hwang. Domestic papers are listed with their original Korean titles."
+  },
+  "intlJournal": [
+   {
+    "year": "2020",
+    "authors": "S. H. Hwang, S. W. Seo",
+    "title": "Offset error compensation algorithm for grid voltage measurement of grid-connected single-phase inverters based on SRF-PLL",
+    "venue": "Journal of Power Electronics",
+    "vol": "vol. 20, no. 3, pp. 794-801",
+    "index": "SCIE",
+    "doi": ""
+   },
+   {
+    "year": "2019",
+    "authors": "Y. Choo, H. Hwang, J. Cho, C. Kim, J. M. Kim, S. H. Hwang, J. Y. Choi, C. Lee",
+    "title": "Investigation of Systematic Efficiency in a High-Speed Single-Phase Brushless DC Motor Using Multi-Physics Analysis for a Vacuum Cleaner",
+    "venue": "IEEE Transactions on Magnetics",
+    "vol": "vol. 55, no. 7, Jul. 2019",
+    "index": "SCI",
+    "doi": ""
+   },
+   {
+    "year": "2019",
+    "authors": "H. Hwang, J. Cho, S. H. Hwang, J. Y. Choi, C. Lee",
+    "title": "Design of a Single-phase BLDC Motor for a Cordless Vacuum Cleaner Considering the Efficiency of Airflow",
+    "venue": "Energies",
+    "vol": "vol. 12, no. 3, 2019",
+    "index": "SCIE",
+    "doi": ""
+   },
+   {
+    "year": "2018",
+    "authors": "J. S. Lee, S. H. Hwang",
+    "title": "DC Offset Error Compensation Algorithm for PR Current Control of a Single-Phase Grid-Tied Inverter",
+    "venue": "Energies",
+    "vol": "vol. 11, no. 9, 2018",
+    "index": "SCIE",
+    "doi": ""
+   },
+   {
+    "year": "2018",
+    "authors": "H. J. Kim, S. H. Hwang, J. M. Kim",
+    "title": "Novel Soft Starting Algorithm of Single Phase Induction Motors by Using PWM Inverter",
+    "venue": "Journal of Power Electronics",
+    "vol": "vol. 18, no. 6, pp. 1720-1728, Nov. 2018",
+    "index": "SCIE",
+    "doi": ""
+   },
+   {
+    "year": "2017",
+    "authors": "S. H. Hwang, T. U. Jung",
+    "title": "Optimal Current Control Method for Efficiency Improvement of BLDC Motor",
+    "venue": "Far East Journal of Electronics and Communications",
+    "vol": "vol. 17, no. 6, pp. 1582-1586, Dec. 2017",
+    "index": "SCOPUS",
+    "doi": ""
+   },
+   {
+    "year": "2016",
+    "authors": "S. H. Hwang, D. J. Bang",
+    "title": "Wide Air-gap Control for Multi-module Permanent Magnet Linear Synchronous Motors without Magnetic Levitation Windings",
+    "venue": "Journal of Power Electronics",
+    "vol": "vol. 16, no. 5, pp. 1773-1780, Sep. 2016",
+    "index": "SCIE",
+    "doi": ""
+   },
+   {
+    "year": "2016",
+    "authors": "U. S. Seong, S. H. Hwang",
+    "title": "Analysis of Phase Error Effects due to Grid Frequency Variation of SRF-PLL Based on APF",
+    "venue": "Journal of Power Electronics",
+    "vol": "vol. 16, no. 1, pp. 18-26, Jan. 2016",
+    "index": "SCIE",
+    "doi": ""
+   },
+   {
+    "year": "2015",
+    "authors": "D. Y. Kim, W. S. Lim, S. H. Hwang, J. M. Kim",
+    "title": "Compensation of Current Offset Error in Half-Bridge PWM Inverter for Linear Compressor",
+    "venue": "Journal of Power Electronics",
+    "vol": "vol. 15, no. 6, pp. 1593-1600, Nov. 2015",
+    "index": "SCIE",
+    "doi": ""
+   },
+   {
+    "year": "2014",
+    "authors": "S. H. Hwang, D. Y. Kim, D. H. Jang, J. M. Kim, J. H. Yoo, T. U. Jung",
+    "title": "Signal Compensation for Analog Rotor Position Errors due to Nonideal Sinusoidal Encoder Signals",
+    "venue": "Journal of Power Electronics",
+    "vol": "vol. 14, no. 1, pp. 82-91, Jan. 2014",
+    "index": "SCIE",
+    "doi": ""
+   },
+   {
+    "year": "2013",
+    "authors": "L. Liu, H. Li, S. H. Hwang, J. M. Kim",
+    "title": "An Energy-Efficient Motor Drive With Autonomous Power Regenerative Control System Based on Cascaded Multilevel Inverters and Segmented Energy Storage",
+    "venue": "IEEE Transactions on Industry Applications",
+    "vol": "vol. 49, no. 1, pp. 178-188, Jan./Feb. 2013",
+    "index": "SCI",
+    "doi": ""
+   },
+   {
+    "year": "2013",
+    "authors": "S. H. Hwang, X. Liu, J. M. Kim, H. Li",
+    "title": "Distributed Digital Control of Modular-Based Solid-State Transformer Using DSP+FPGA",
+    "venue": "IEEE Transactions on Industrial Electronics",
+    "vol": "vol. 60, no. 2, pp. 670-680, Feb. 2013",
+    "index": "SCI",
+    "doi": ""
+   },
+   {
+    "year": "2012",
+    "authors": "S. H. Hwang, L. Liu, H. Li, J. M. Kim",
+    "title": "DC Offset Error Compensation for Synchronous Reference Frame PLL in Single-Phase Grid-Connected Converters",
+    "venue": "IEEE Transactions on Power Electronics",
+    "vol": "vol. 27, no. 8, pp. 3467-3471, Aug. 2012",
+    "index": "SCI",
+    "doi": ""
+   },
+   {
+    "year": "2012",
+    "authors": "J. W. Park, S. H. Hwang, J. M. Kim",
+    "title": "Sensorless Control of Brushless DC Motors With Torque Constant Estimation for Home Appliances",
+    "venue": "IEEE Transactions on Industry Applications",
+    "vol": "vol. 48, no. 2, pp. 677-684, Mar./Apr. 2012",
+    "index": "SCI",
+    "doi": ""
+   },
+   {
+    "year": "2011",
+    "authors": "S. H. Hwang, H. J. Kim, J. M. Kim, L. Liu, H. Li",
+    "title": "Compensation of Amplitude Imbalance and Imperfect Quadrature in Resolver Signals for PMSM Drives",
+    "venue": "IEEE Transactions on Industry Applications",
+    "vol": "vol. 47, no. 1, pp. 134-143, Jan./Feb. 2011",
+    "index": "SCI",
+    "doi": ""
+   },
+   {
+    "year": "2010",
+    "authors": "S. H. Hwang, J. M. Kim",
+    "title": "Dead Time Compensation Method for Voltage-Fed PWM Inverter",
+    "venue": "IEEE Transactions on Energy Conversion",
+    "vol": "vol. 25, no. 1, pp. 1-10, Mar. 2010",
+    "index": "SCI",
+    "doi": ""
+   },
+   {
+    "year": "2006",
+    "authors": "H. S. Jung, S. H. Hwang, J. M. Kim, C. U. Kim, C. Choi",
+    "title": "Diminution of Current-Measurement Error for Vector-Controlled AC Motor Drives",
+    "venue": "IEEE Transactions on Industry Applications",
+    "vol": "vol. 42, no. 5, pp. 1249-1256, Sep./Oct. 2006",
+    "index": "SCI",
+    "doi": ""
+   }
+  ],
+  "intlConf": [
+   {
+    "year": "2025",
+    "authors": "S. Jun, Y. Bae, Y. Yun, S. Hwang, K. Lee",
+    "title": "Switch Open Fault Detection in Dual Three-Phase Inverter Based on DC-Link Current Ripple",
+    "venue": "IEEE Transportation Electrification Conference and Expo, Asia-Pacific (ITEC Asia-Pacific)",
+    "vol": "Singapore, pp. 1-6, Nov. 2025",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2025",
+    "authors": "Y. Kim, J. Baek, S. Jun, S. Hwang, J. Huh",
+    "title": "Mitigation of Common-Mode Leakage Current in a Dual Three-Phase Inverters with Two Different PMSMs",
+    "venue": "IEEE Transportation Electrification Conference and Expo, Asia-Pacific (ITEC Asia-Pacific)",
+    "vol": "Singapore, pp. 1-6, Nov. 2025",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2024",
+    "authors": "M. Kim, Y. Bae, S. Jun, S. Hwang, K. Lee, H. Li",
+    "title": "Switch Open Fault Detection of Asymmetric 6-phase PMSM Based on Normalized Stationary Reference Frame dq-axis Currents",
+    "venue": "IEEE Energy Conversion Congress and Exposition (ECCE)",
+    "vol": "Phoenix, AZ, USA, pp. 5516-5522, Oct. 2024",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2024",
+    "authors": "S. Jun, M. Kim, S. Hwang, K. Lee, H. Li",
+    "title": "Switching Open Fault Detection Method for Asymmetric 6-phase Motor Drives Based on Stationary Reference Frame dq-axis Currents",
+    "venue": "IEEE Energy Conversion Congress and Exposition (ECCE)",
+    "vol": "Phoenix, AZ, USA, pp. 4164-4169, Oct. 2024",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2019",
+    "authors": "J. H. Yoo, S. H. Hwang, T. U. Jung",
+    "title": "Stator Teeth Paring Design Optimization of Dual Radial Flux Permanent Magnet Generator for Cogging Torque Minimization",
+    "venue": "4th North American Conference on Industrial Engineering & Operations Management",
+    "vol": "Toronto, Canada, Oct. 2019",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2019",
+    "authors": "T. S. Kim, S. H. Hwang, J. S. Kim, J. W. Park",
+    "title": "DC Offset Compensation Algorithm in the Grid Voltage of Single-phase Grid-connected Inverter",
+    "venue": "IEEE Applied Power Electronics Conference and Exposition (APEC)",
+    "vol": "pp. 2457-2460, Mar. 2019",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2018",
+    "authors": "H. D. Kang, S. H. Hwang",
+    "title": "Starting Method of High Speed Operation Single-Phase BLDC Motor Based on Virtual DQ Current Control",
+    "venue": "21st International Conference on Electrical Machines and Systems (ICEMS)",
+    "vol": "Jeju, Korea, pp. 1518-1521, Oct. 2018",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2018",
+    "authors": "H. D. Kang, S. H. Hwang, J. S. Lee",
+    "title": "Initial Rotor Position Estimation of Single-phase Permanent Magnet Synchronous Motor with Asymmetric Air-gap",
+    "venue": "IEEE Transportation Electrification Conference and Expo, Asia-Pacific (ITEC Asia-Pacific)",
+    "vol": "Bangkok, Thailand, Jun. 2018",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2017",
+    "authors": "G. H. Shin, J. S. Lee, S. H. Hwang",
+    "title": "Development of a Speed Ripple Reduction Algorithm for an Oil Cooler Compressor",
+    "venue": "IEEE 3rd International Future Energy Electronics Conference and ECCE Asia (IFEEC–ECCE Asia)",
+    "vol": "Kaohsiung, Taiwan, Jun. 2017",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2017",
+    "authors": "K. H. Shin, S. H. Hwang, J. S. Lee",
+    "title": "Analysis of an Offset Error on a Single-phase Grid-connected Inverter Based on a Proportional-resonant Controller",
+    "venue": "IEEE Applied Power Electronics Conference and Exposition (APEC)",
+    "vol": "Tampa, FL, USA, Mar. 2017",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2017",
+    "authors": "E. S. Kim, U. S. Seong, J. S. Lee, S. H. Hwang",
+    "title": "Compensation of Dead Time Effects in Grid-tied Single-phase Inverter using SOGI",
+    "venue": "IEEE Applied Power Electronics Conference and Exposition (APEC)",
+    "vol": "Tampa, FL, USA, Mar. 2017",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2015",
+    "authors": "C. N. Heo, S. H. Hwang, D. J. Bang",
+    "title": "Current Ripple Reduction Due to Current Measurement Errors of Independent Three-phase Permanent Magnet Synchronous Machine with Dual Air-gap",
+    "venue": "IEEE 2nd International Future Energy Electronics Conference and ECCE Asia (IFEEC–ECCE Asia)",
+    "vol": "Taipei, Taiwan, Nov. 2015",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2015",
+    "authors": "U. S. Seong, S. H. Hwang",
+    "title": "Analysis of Phase Error Effects between Virtual Two-phase Voltages in SRF-PLL Based on APF",
+    "venue": "9th International Conference on Power Electronics and ECCE Asia (ICPE–ECCE Asia)",
+    "vol": "Seoul, Korea, Jun. 2015",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2015",
+    "authors": "C. N. Heo, B. G. Jeong, S. H. Hwang, D. J. Bang",
+    "title": "Double-sided Air Gap Control of Module-based Permanent Magnet Synchronous Machine for Low-speed and High-torque Applications",
+    "venue": "9th International Conference on Power Electronics and ECCE Asia (ICPE–ECCE Asia)",
+    "vol": "Seoul, Korea, Jun. 2015",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2014",
+    "authors": "D. J. Bang, S. H. Hwang, J. W. Kim, W. Hwang, P. W. Han, D. H. Koo",
+    "title": "Bearingless Transverse Flux Permanent Magnet Machine for Large Direct-drive",
+    "venue": "IEEE Energy Conversion Congress and Exposition (ECCE)",
+    "vol": "Pittsburgh, PA, USA, Sep. 2014",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2014",
+    "authors": "S. H. Hwang, D. J. Bang, J. W. Kim",
+    "title": "Air Gap Control of Multi-phase Transverse Flux Permanent Magnet Linear Synchronous Motor by Using Independent Vector Control",
+    "venue": "International Power Electronics Conference (IPEC–ECCE Asia)",
+    "vol": "Hiroshima, Japan, May 2014",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2014",
+    "authors": "S. H. Hwang, J. M. Kim, D. J. Bang, J. W. Kim, D. H. Koo, D. H. Kang",
+    "title": "Control of Independent Multi-phase Transverse Flux Linear Synchronous Motor Based on Magnetic Levitation",
+    "venue": "IEEE Applied Power Electronics Conference and Exposition (APEC)",
+    "vol": "Fort Worth, TX, USA, Mar. 2014",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2014",
+    "authors": "D. J. Bang, G. W. Jang, S. H. Hwang, P. W. Han, J. W. Kim, D. H. Koo, H. Polinder, J. A. Ferreira",
+    "title": "New Bearingless Generator with Buoyant Rotor for Large Direct-Drive Wind Turbines",
+    "venue": "European Wind Energy Association Conference (EWEA)",
+    "vol": "Spain, Mar. 2014",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2013",
+    "authors": "D. Y. Kim, J. M. Kim, J. W. Park, S. H. Hwang",
+    "title": "Compensation of Current Measurement Error in Half-bridge PWM Inverter for Linear Compressor",
+    "venue": "IEEE ECCE Asia Downunder",
+    "vol": "Melbourne, Australia, Jun. 2013",
+    "index": "",
+    "doi": ""
+   },
+   {
+    "year": "2012",
+    "authors": "J. J. Moon, J. W. Park, J. M. Kim, S. H. Hwang, D. J. Bang",
+    "title": "Phase Current Estimation of BLDC Motor Drive System by Using Source Side Current of DC-link",
+    "venue": "IEEE Energy Conversion Congress and Exposition (ECCE)",
+    "vol": "Raleigh, NC, USA, Sep. 2012",
+    "index": "",
+    "doi": ""
+   }
+  ],
+  "domJournal": [
+   {
+    "year": "2025",
+    "authors": "전소영, 임병준, 허재성, 황선환",
+    "title": "직류단 전류 맥동을 이용한 비대칭 6상 영구자석 동기 전동기의 스위치 개방 고장 검출 기법",
+    "venue": "조명·전기설비학회논문지",
+    "vol": "39(6), 453-459",
+    "index": "",
+    "doi": "",
+    "date": "2025.12"
+   },
+   {
+    "year": "2025",
+    "authors": "백진찬, 전소영, 배연규, 황선환",
+    "title": "비대칭 6상 영구자석 동기전동기의 전기적 파라미터 오차에 따른 센서리스 운전 특성 분석",
+    "venue": "한국산업융합학회논문집",
+    "vol": "28(6), 1709-1718",
+    "index": "",
+    "doi": "",
+    "date": "2025.12"
+   },
+   {
+    "year": "2025",
+    "authors": "신진재, 전소영, 황선환",
+    "title": "비대칭 6상 PMSM의 직류단 전류를 이용한 스위치 개방 고장 검출 기법에 관한 연구",
+    "venue": "한국산학기술학회논문지",
+    "vol": "26(1), 860-867",
+    "index": "",
+    "doi": "",
+    "date": "2025.01"
+   },
+   {
+    "year": "2025",
+    "authors": "권태현, 백진찬, 전소영, 황선환",
+    "title": "직류 신호 주입을 통한 듀얼 3상 인버터의 스위치 개방 고장 검출",
+    "venue": "한국산학기술학회논문지",
+    "vol": "26(1), 29-34",
+    "index": "",
+    "doi": "",
+    "date": "2025.01"
+   },
+   {
+    "year": "2024",
+    "authors": "이재원, 전소영, 황선환",
+    "title": "듀얼 3상 인버터의 아크탄젠트 함수를 이용한 스위치 개방 고장 검출 기법",
+    "venue": "한국산업융합학회논문집",
+    "vol": "27(6), 1457-1463",
+    "index": "",
+    "doi": "",
+    "date": "2024.12"
+   },
+   {
+    "year": "2024",
+    "authors": "배연규, 황선환",
+    "title": "스위칭 주파수별 인버터 비선형성 보상을 통한 정렬 시 3상 영구자석 동기전동기의 고정자 저항 추정",
+    "venue": "한국산업융합학회논문집",
+    "vol": "27(6), 1491-1498",
+    "index": "",
+    "doi": "",
+    "date": "2024.12"
+   },
+   {
+    "year": "2024",
+    "authors": "김명재, 김연희, 황선환, 이상윤, 허재성",
+    "title": "전압변조기법에 따른 듀얼 인버터의 공통모드 전압 및 누설 전류 분석",
+    "venue": "한국산업융합학회논문집",
+    "vol": "27(6), 1439-1447",
+    "index": "",
+    "doi": "",
+    "date": "2024.12"
+   },
+   {
+    "year": "2023",
+    "authors": "조현아, 전소영, 황선환",
+    "title": "단상 영구자석 동기전동기의 추정 각속도 오차에 따른 DQ축 전류 제어 특성 분석",
+    "venue": "조명·전기설비학회논문지",
+    "vol": "37(6), 75-82",
+    "index": "",
+    "doi": "",
+    "date": "2023.12"
+   },
+   {
+    "year": "2023",
+    "authors": "이재원, 김명재, 황선환",
+    "title": "횡자속 영구자석형 자기부상전자석 시스템의 공극제어에 관한 연구",
+    "venue": "한국산업융합학회논문집",
+    "vol": "26(6), 1127-1134",
+    "index": "",
+    "doi": "",
+    "date": "2023.12"
+   },
+   {
+    "year": "2022",
+    "authors": "전소영, 황선환, 박종원",
+    "title": "비대칭 6상 영구자석 동기 전동기의 스위치 개방에 따른 특성 분석 및 고장허용운전",
+    "venue": "한국산업융합학회논문집",
+    "vol": "25(6), 1003-1008",
+    "index": "",
+    "doi": "",
+    "date": "2022.12"
+   },
+   {
+    "year": "2022",
+    "authors": "김한얼, 이기창, 김경업, 박종원, 황선환",
+    "title": "차단 주파수 가변형 HPF를 이용한 듀얼 3상 인버터의 스위치 개방 고장 검출 기법",
+    "venue": "조명·전기설비학회논문지",
+    "vol": "36(11), 9-15",
+    "index": "",
+    "doi": "",
+    "date": "2022.11"
+   },
+   {
+    "year": "2022",
+    "authors": "유상민, 황선환, 이기창",
+    "title": "풀 브릿지 인버터의 비선형성을 고려한 단상 영구자석 동기 전동기의 구형파 전압 주입 기동 기법",
+    "venue": "항공우주시스템공학회지",
+    "vol": "16(3), 93-98",
+    "index": "",
+    "doi": "",
+    "date": "2022.06"
+   },
+   {
+    "year": "2022",
+    "authors": "이원석, 김한얼, 황선환, 이기창, 박종원",
+    "title": "비대칭 6상 영구자석 동기 전동기의 정지 좌표계 DQ축 전류를 이용한 스위치 개방 고장 검출 기법",
+    "venue": "전기전자학회논문지",
+    "vol": "26(2), 265-270",
+    "index": "",
+    "doi": "",
+    "date": "2022.06"
+   },
+   {
+    "year": "2022",
+    "authors": "서승우, 황선환, 박종원, 김용휴",
+    "title": "단상 영구자석 동기 전동기의 비대칭 공극 구조를 고려한 회전자 초기 자극 검출 기법",
+    "venue": "전력전자학회논문지",
+    "vol": "27(1), 80-83",
+    "index": "",
+    "doi": "",
+    "date": "2022.02"
+   },
+   {
+    "year": "2020",
+    "authors": "이원석, 황선환, 박종원",
+    "title": "단상 영구자석 동기전동기의 속도 가변형 비례공진 전류제어에 관한 연구",
+    "venue": "전기전자학회논문지",
+    "vol": "24(4)",
+    "index": "",
+    "doi": "",
+    "date": "2020.12"
+   },
+   {
+    "year": "2020",
+    "authors": "서승우, 황선환, 이기창",
+    "title": "단상 영구자석 동기전동기의 가상 dq축 기반 초기 회전자 자극 검출",
+    "venue": "전기전자학회논문지",
+    "vol": "24(4)",
+    "index": "",
+    "doi": "",
+    "date": "2020.12"
+   },
+   {
+    "year": "2020",
+    "authors": "이선영, 황선환, 김경엽, 박종원",
+    "title": "3상 영구자석 동기전동기의 속도 맥동 저감을 위한 비례공진 전향보상 제어 알고리즘",
+    "venue": "전기전자학회논문지",
+    "vol": "24(4), 1104-1108",
+    "index": "",
+    "doi": "",
+    "date": "2020.12"
+   },
+   {
+    "year": "2020",
+    "authors": "황선환, 김태성, 이원석",
+    "title": "LabVIEW를 이용한 가상 배전계통의 HILS 시스템 구축에 관한 연구",
+    "venue": "전기전자학회논문지",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2020.06"
+   },
+   {
+    "year": "2019",
+    "authors": "하용호, 정태욱, 황선환, 김진수, 박종원",
+    "title": "부하변동에 따른 HESS 하프 브리지 컨버터의 출력특성 개선에 관한 연구",
+    "venue": "한국마린엔지니어링학회지",
+    "vol": "43(9), 755-760",
+    "index": "",
+    "doi": "",
+    "date": "2019.11"
+   },
+   {
+    "year": "2019",
+    "authors": "박종원, 황선환",
+    "title": "전류 제어 기반 옵셋 전류를 이용한 단상 영구자석 동기 전동기의 회전자 자극 검출에 관한 연구",
+    "venue": "전기전자학회논문지",
+    "vol": "23(3), 1020-1026",
+    "index": "",
+    "doi": "",
+    "date": "2019.09"
+   },
+   {
+    "year": "2019",
+    "authors": "황선환, 서승우, 정태욱",
+    "title": "옵셋 전압을 이용한 단상 영구자석 동기 전동기의 초기 회전자 위치 검출",
+    "venue": "전기전자학회논문지",
+    "vol": "23(2), 622-627",
+    "index": "",
+    "doi": "",
+    "date": "2019.06"
+   },
+   {
+    "year": "2019",
+    "authors": "김성삼, 황선환",
+    "title": "가변형 수동 고조파 필터에 의한 단상 무정전전원장치의 고조파 저감에 관한 연구",
+    "venue": "전기전자학회논문지",
+    "vol": "23(2), 495-501",
+    "index": "",
+    "doi": "",
+    "date": "2019.06"
+   },
+   {
+    "year": "2019",
+    "authors": "정병국, 황선환",
+    "title": "직접 구동형 풍력 발전을 위한 멀티 모듈 영구자석형 발전기의 벡터 제어",
+    "venue": "조명·전기설비학회논문지",
+    "vol": "33(4), 38-47",
+    "index": "",
+    "doi": "",
+    "date": "2019.04"
+   },
+   {
+    "year": "2019",
+    "authors": "황선환, 유진형, 정태욱",
+    "title": "오버랩 제어기법 및 2차 저역통과 RC필터를 이용한 영구자석 BLDC 전동기의 온라인 권선 단락 진단기법",
+    "venue": "조명·전기설비학회논문지",
+    "vol": "33(1), 41-47",
+    "index": "",
+    "doi": "",
+    "date": "2019.01"
+   },
+   {
+    "year": "2018",
+    "authors": "강형도, 황선환",
+    "title": "가변형 APF를 이용한 단상 영구자석 동기전동기의 DQ모델 기반 기동운전에 관한 연구",
+    "venue": "한국마린엔지니어링학회지",
+    "vol": "42(7), 602-608",
+    "index": "",
+    "doi": "",
+    "date": "2018.09"
+   },
+   {
+    "year": "2018",
+    "authors": "김태성, 강형도, 황선환",
+    "title": "풀 브리지 인버터 기반 단상 유도전동기의 소프트 기동 기법",
+    "venue": "전기전자학회논문지",
+    "vol": "22(2), 258-265",
+    "index": "",
+    "doi": "",
+    "date": "2018.06"
+   },
+   {
+    "year": "2017",
+    "authors": "허찬녕, 황선환",
+    "title": "독립 3상 구조를 갖는 이중공극형 영구자석 동기전동기의 Y 및 Delta 결선에 따른 공극제어",
+    "venue": "전력전자학회논문지",
+    "vol": "22(3), 249-255",
+    "index": "",
+    "doi": "",
+    "date": "2017.06"
+   },
+   {
+    "year": "2017",
+    "authors": "성의석, 이재석, 황선환, 김장목",
+    "title": "SOGI를 이용한 단상 계통연계형 인버터의 데드타임 보상",
+    "venue": "전력전자학회논문지",
+    "vol": "22(2), 166-174",
+    "index": "",
+    "doi": "",
+    "date": "2017.04"
+   },
+   {
+    "year": "2016",
+    "authors": "허찬녕, 황선환",
+    "title": "역기전력 불평형을 고려한 독립 3상 영구자석 동기전동기의 속도맥동 저감",
+    "venue": "조명·전기설비학회논문지",
+    "vol": "30(11), 42-49",
+    "index": "",
+    "doi": "",
+    "date": "2016.11"
+   },
+   {
+    "year": "2015",
+    "authors": "권영, 성의석, 황선환",
+    "title": "SRF-PLL을 이용한 계통연계형 단상 인버터의 전원 위상각 검출시 옵셋 오차 영향에 관한 연구",
+    "venue": "조명·전기설비학회논문지",
+    "vol": "29(10), 73-82",
+    "index": "",
+    "doi": "",
+    "date": "2015.10"
+   },
+   {
+    "year": "2015",
+    "authors": "성의석, 황선환",
+    "title": "비례공진 제어기를 이용한 단상 계통연계형 인버터의 데드타임 영향과 옵셋 오차로 인한 전류맥동 저감에 관한 연구",
+    "venue": "전력전자학회논문지",
+    "vol": "20(3), 201-208",
+    "index": "",
+    "doi": "",
+    "date": "2015.06"
+   },
+   {
+    "year": "2014",
+    "authors": "S. H. Hwang, S. K. Kwon, Y. G. Hwang",
+    "title": "Coordinated Control of an Independent Multi-phase Permanent Magnet-type Transverse Flux Linear Machine Based on Magnetic Levitation",
+    "venue": "Journal of the Korean Institute of Illuminating and Electrical Installation Engineers",
+    "vol": "28(12), 95-102",
+    "index": "",
+    "doi": "",
+    "date": "2014.12"
+   },
+   {
+    "year": "2014",
+    "authors": "황선환, 황영기, 권순걸",
+    "title": "단상 계통연계형 인버터의 SRF-PLL 옵셋 오차로 인한 전류 맥동 저감에 관한 연구",
+    "venue": "조명·전기설비학회논문지",
+    "vol": "28(11), 68-76",
+    "index": "",
+    "doi": "",
+    "date": "2014.11"
+   },
+   {
+    "year": "2013",
+    "authors": "정태욱, 황선환, 방덕제",
+    "title": "해외 풍력발전 현황 및 전력변환시스템 기술동향",
+    "venue": "조명·전기설비",
+    "vol": "27(3), 49-56",
+    "index": "",
+    "doi": "",
+    "date": "2013.05"
+   }
+  ],
+  "domConf": [
+   {
+    "year": "2025",
+    "authors": "전소영, 황선환, 허재성",
+    "title": "2차 적분형 제어기를 이용한 듀얼 인버터의 스위치 개방 고장 검출 기법",
+    "venue": "한국유체기계학회 학술대회 논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2025.12"
+   },
+   {
+    "year": "2025",
+    "authors": "백진찬, 전소영, 배연규, 황선환, 임병준, 박태춘",
+    "title": "비대칭 6상 영구자석 동기전동기의 위치 센서 고장에 따른 센서리스 운전 특성 분석",
+    "venue": "한국항공우주학회 학술발표회 초록집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2025.04"
+   },
+   {
+    "year": "2024",
+    "authors": "김명재, 배연규, 황선환, 허재성",
+    "title": "스위칭 주파수에 따른 3상 영구자석 동기 전동기의 정렬시 고정자 저항 추정 분석",
+    "venue": "항공우주시스템공학회 학술행사 논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2024.05"
+   },
+   {
+    "year": "2024",
+    "authors": "전소영, 황선환",
+    "title": "전기추진 항공용 고전압 및 고출력 인버터의 전력변환 토폴로지 분석",
+    "venue": "한국항공우주학회 학술발표회 초록집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2024.04"
+   },
+   {
+    "year": "2024",
+    "authors": "전소영, 황선환",
+    "title": "PLL 기반 듀얼 3상 인버터의 개방 고장 진단에 관한 연구",
+    "venue": "한국항공우주학회 학술발표회 초록집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2024.04"
+   },
+   {
+    "year": "2024",
+    "authors": "김연희, 전소영, 황선환",
+    "title": "듀얼 3상 인버터의 DPWM에 따른 스위칭 개방 고장 특성 분석",
+    "venue": "한국항공우주학회 학술발표회 초록집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2024.04"
+   },
+   {
+    "year": "2024",
+    "authors": "백진찬, 배연규, 황선환",
+    "title": "정렬 시 스위칭 주파수에 따른 3상 영구자석 동기전동기의 고정자 저항 추정에 대한 연구",
+    "venue": "한국항공우주학회 학술발표회 초록집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2024.04"
+   },
+   {
+    "year": "2023",
+    "authors": "권태현, 전소영, 김연희, 황선환, 이기창",
+    "title": "전압변조기법에 따른 비대칭 6상 동기 전동기의 운전 특성 분석",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2023.11"
+   },
+   {
+    "year": "2023",
+    "authors": "신진재, 권수민, 권태현, 황선환, 박종원",
+    "title": "3상 PMSM의 센서리스 운전에 따른 전기적 시정수 추정에 관한 연구",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2023.11"
+   },
+   {
+    "year": "2023",
+    "authors": "배연규, 전소영, 백진찬, 황선환",
+    "title": "정렬동작시 영구자석 동기전동기의 전기적 파라미터 추정에 관한 연구",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2023.11"
+   },
+   {
+    "year": "2023",
+    "authors": "배연규, 김명재, 조현아, 황선환, 이기창",
+    "title": "비대칭 6상 영구자석 동기전동기의 PWM 기법에 따른 운전 특성 분석",
+    "venue": "항공우주시스템공학회 학술행사 논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2023.10"
+   },
+   {
+    "year": "2023",
+    "authors": "권태현, 전소영, 김명재, 황선환, 이기창",
+    "title": "정지 좌표계 dq축 전류 승산을 이용한 듀얼 인버터의 스위치 개방 고장 검출 기법",
+    "venue": "항공우주시스템공학회 학술행사 논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2023.10"
+   },
+   {
+    "year": "2022",
+    "authors": "권수민, 조현아, 한상보, 황선환, 박종원, 김경업, 김범기",
+    "title": "가변형 APF 위상 오차에 의한 단상 영구자석 동기전동기의 dq축 전류 특징 해석",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2022.11"
+   },
+   {
+    "year": "2022",
+    "authors": "전재욱, 전소영, 조현아, 황선환, 박종원, 허찬녕, 권민관",
+    "title": "직류단 전류를 이용한 6상 영구자석 동기 전동기의 고장 검출 기법",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2022.11"
+   },
+   {
+    "year": "2022",
+    "authors": "감성현, 신정우, 황선환, 박종원, 김진수, 박규만, 김민주",
+    "title": "MATLAB의 커브 피팅을 이용한 3상 영구자석 동기 전동기의 과도 응답 특성 개선",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2022.11"
+   },
+   {
+    "year": "2022",
+    "authors": "조현아, 유상민, 전재욱, 황선환, 박종원",
+    "title": "단상 영구자석 동기 전동기의 각속도 오차에 따른 dq축 전류 제어 특성",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2022.05"
+   },
+   {
+    "year": "2021",
+    "authors": "김한얼, 이원석, 안효진, 황선환, 이기창",
+    "title": "비대칭 6상 영구자석 동기 전동기 구동 시스템의 동기화 전류 제어 기법 연구",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2021.11"
+   },
+   {
+    "year": "2021",
+    "authors": "신정우, 이원석, 전소영, 황선환, 박종원",
+    "title": "비대칭 6상 영구자석 동기 전동기의 dq축 전류를 이용한 개별 스위치 개방 고장 진단",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2021.11"
+   },
+   {
+    "year": "2021",
+    "authors": "유상민, 서승우, 조현아, 박종원, 김진수, 황선환",
+    "title": "단상 영구자석 동기 전동기의 센서리스 운전 모드 전환 기법",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2021.11"
+   },
+   {
+    "year": "2021",
+    "authors": "유상민, 신정우, 이원석, 황선환",
+    "title": "듀얼 인버터 불평형에 따른 비대칭 6상 영구자석 동기 전동기의 운전 특성 분석",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2021.05"
+   },
+   {
+    "year": "2021",
+    "authors": "신정우, 유상민, 이원석, 황선환, 이기창",
+    "title": "비대칭 6상 영구자석 동기 전동기의 전류 제어 기법에 따른 프롭 특성 분석",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2021.05"
+   },
+   {
+    "year": "2021",
+    "authors": "김현주, 서승우, 황선환, 박종원, 김진수",
+    "title": "가상 DQ 변환 기법에 따른 단상 영구자석 동기 전동기의 운전 특성",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2021.05"
+   },
+   {
+    "year": "2020",
+    "authors": "이원석, 황선환",
+    "title": "단상 계통 연계형 인버터의 출력전압 불평형 영향 분석",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2020.11"
+   },
+   {
+    "year": "2020",
+    "authors": "이선영, 서승우, 황선환",
+    "title": "3상 영구자석 동기전동기의 속도맥동 저감을 위한 가변 비례공진 전향보상기법",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2020.11"
+   },
+   {
+    "year": "2020",
+    "authors": "이원석, 신임수, 유상민, 황선환",
+    "title": "단상 영구자석 동기 전동기의 가변속 운전을 위한 가변 비례공진 전류 제어 기법",
+    "venue": "전력전자학회 학술대회 논문집",
+    "vol": "433-434",
+    "index": "",
+    "doi": "",
+    "date": "2020.08"
+   },
+   {
+    "year": "2020",
+    "authors": "서승우, 이선영, 김한얼, 황선환, 박종원",
+    "title": "가상 dq축 기반 단상 영구자석 동기 전동기 회전자 자극 검출",
+    "venue": "전력전자학회 학술대회 논문집",
+    "vol": "435-436",
+    "index": "",
+    "doi": "",
+    "date": "2020.08"
+   },
+   {
+    "year": "2020",
+    "authors": "이원석, 임성일, 황선환",
+    "title": "랩뷰 기반 가상 배전용 HILS 시스템",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2020.07"
+   },
+   {
+    "year": "2020",
+    "authors": "서승우, 김한얼, 이선영, 황선환, 박종원, 김경업",
+    "title": "청소기용 단상 영구자석 동기 전동기의 진상각 제어",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "",
+    "index": "",
+    "doi": "",
+    "date": "2020.07"
+   },
+   {
+    "year": "2019",
+    "authors": "서승우, 이선영, 황선환, 김경엽",
+    "title": "단상 BLDC 전동기의 전류 측정 오차 보상에 관한 연구",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "81",
+    "index": "",
+    "doi": "",
+    "date": "2019.11"
+   },
+   {
+    "year": "2019",
+    "authors": "김태성, 곽명준, 황선환, 박종원",
+    "title": "단상 영구자석 선형전동기의 가변 공진형 전류제어에 관한 연구",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "70",
+    "index": "",
+    "doi": "",
+    "date": "2019.11"
+   },
+   {
+    "year": "2019",
+    "authors": "곽명준, 황선환, 정태욱",
+    "title": "Dual RFPM 발전기의 코깅토크 감소를 위한 고정자 치조합 설계",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "170-171",
+    "index": "",
+    "doi": "",
+    "date": "2019.10"
+   },
+   {
+    "year": "2019",
+    "authors": "서승우, 김태성, 황선환, 박종원",
+    "title": "단상 영구자석 동기 전동기의 비대칭 공극을 고려한 회전자 초기 자극 검출 방법",
+    "venue": "전력전자학회 학술대회 논문집",
+    "vol": "410-411",
+    "index": "",
+    "doi": "",
+    "date": "2019.07"
+   },
+   {
+    "year": "2018",
+    "authors": "강우석, 강형도, 황선환, 신기수",
+    "title": "전류 측정 오차에 의한 단상 모터의 센서리스 운전 특성 분석",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "79",
+    "index": "",
+    "doi": "",
+    "date": "2018.11"
+   },
+   {
+    "year": "2018",
+    "authors": "강형도, 김태성, 강우석, 황선환",
+    "title": "단상 영구자석 동기전동기의 센서리스 운전 시 옵셋 오차 영향에 관한 연구",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "795",
+    "index": "",
+    "doi": "",
+    "date": "2018.07"
+   },
+   {
+    "year": "2018",
+    "authors": "하용호, 김태성, 황선환, 김용휴, 안우영, 김성호",
+    "title": "부하변동에 따른 HESS Half-Bridge Converter 출력안정화 기법에 관한 연구",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "800",
+    "index": "",
+    "doi": "",
+    "date": "2018.07"
+   },
+   {
+    "year": "2018",
+    "authors": "하용호, 정병국, 황선환, 김성호",
+    "title": "부하변동에 따른 슈퍼커패시터의 출력안정화 기법에 관한 연구",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "153",
+    "index": "",
+    "doi": "",
+    "date": "2018.05"
+   },
+   {
+    "year": "2017",
+    "authors": "강형도, 황선환",
+    "title": "냉동고 압축기용 단상 유도전동기의 기동기법에 관한 연구",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "57",
+    "index": "",
+    "doi": "",
+    "date": "2017.11"
+   },
+   {
+    "year": "2017",
+    "authors": "신광현, 강형도, 황선환, 이치우",
+    "title": "가상 DQ 모델을 이용한 단상 영구자석 동기 전동기의 기동 알고리즘",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "184-186",
+    "index": "",
+    "doi": "",
+    "date": "2017.10"
+   },
+   {
+    "year": "2017",
+    "authors": "신광현, 황선환, 김장목, 정한수, 이청일",
+    "title": "초저온 냉동고용 단상 유도전동기의 기동전류 저감에 관한 연구",
+    "venue": "전력전자학회 학술대회 논문집",
+    "vol": "341-342",
+    "index": "",
+    "doi": "",
+    "date": "2017.07"
+   },
+   {
+    "year": "2017",
+    "authors": "E. S. Kim, Y. H. Ha, S. H. Hwang, J. Lee",
+    "title": "A Study on Control Algorithm of a Switching Device for Junction of Photovoltaic Modules by Using Soft Starting",
+    "venue": "Proceedings of the KIPE Conference",
+    "vol": "306-307",
+    "index": "",
+    "doi": "",
+    "date": "2017.07"
+   },
+   {
+    "year": "2016",
+    "authors": "신광현, 이재석, 황선환",
+    "title": "오일 쿨러용 컴프레셔의 속도 맥동 저감에 관한 연구",
+    "venue": "전력전자학회 학술대회 논문집",
+    "vol": "113-114",
+    "index": "",
+    "doi": "",
+    "date": "2016.11"
+   },
+   {
+    "year": "2016",
+    "authors": "정병국, 이재석, 황선환",
+    "title": "단상 무정전전원장치의 출력측 필터 커패시터 추정기법에 관한 연구",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "259-260",
+    "index": "",
+    "doi": "",
+    "date": "2016.10"
+   },
+   {
+    "year": "2016",
+    "authors": "이재석, 최종혁, 황선환",
+    "title": "모터상수추정의 오차보상을 통한 표면형 영구자석 동기전동기 제어 및 효율 향상",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "1023-1024",
+    "index": "",
+    "doi": "",
+    "date": "2016.07"
+   },
+   {
+    "year": "2016",
+    "authors": "신광현, 김은수, 정병국, 황선환",
+    "title": "비례공진 전류제어 기반 단상 계통연계형 인버터의 옵셋 오차 분석",
+    "venue": "전력전자학회 학술대회 논문집",
+    "vol": "495-496",
+    "index": "",
+    "doi": "",
+    "date": "2016.07"
+   },
+   {
+    "year": "2016",
+    "authors": "이재석, 황선환",
+    "title": "모델기반설계를 이용한 영구자석 동기전동기 제어시스템 구현",
+    "venue": "대한전기학회 학술대회 논문집",
+    "vol": "269-271",
+    "index": "",
+    "doi": "",
+    "date": "2016.03"
+   },
+   {
+    "year": "2015",
+    "authors": "성의석, 허찬녕, 황선환",
+    "title": "3상 역기전력 불평형에 의한 모듈형 영구자석 동기 전동기의 토크리플 저감 기법",
+    "venue": "한국조명·전기설비학회 학술대회논문집",
+    "vol": "18",
+    "index": "",
+    "doi": "",
+    "date": "2015.11"
+   },
+   {
+    "year": "2015",
+    "authors": "성의석, 허찬녕, 정병국, 황선환, 방덕제",
+    "title": "독립 3상 구조의 이중공극 영구자석형 동기 전동기의 Y 및 △결선에 따른 운전 특성 해석",
+    "venue": "전력전자학회 학술대회 논문집",
+    "vol": "489-490",
+    "index": "",
+    "doi": "",
+    "date": "2015.07"
+   },
+   {
+    "year": "2014",
+    "authors": "성의석, 황선환",
+    "title": "비례공진 제어기를 이용한 단상 계통연계형 인버터의 데드타임 영향과 옵셋 오차로 인한 전류맥동 저감에 관한 연구",
+    "venue": "전력전자학회 학술대회 논문집",
+    "vol": "157-158",
+    "index": "",
+    "doi": "",
+    "date": "2014.11"
+   },
+   {
+    "year": "2014",
+    "authors": "성의석, 정병국, 황선환, 김장목",
+    "title": "단상 계통연계형 컨버터의 SRF-PLL 옵셋 오차로 인한 전류 맥동 저감에 관한 연구",
+    "venue": "전력전자학회 학술대회 논문집",
+    "vol": "451-452",
+    "index": "",
+    "doi": "",
+    "date": "2014.07"
+   }
+  ]
+ },
+ "lectures": {
+  "note": {
+   "ko": "강의 자료는 준비 중입니다. 수강 관련 문의는 이메일로 주세요.",
+   "en": "Course materials are being prepared. Please contact us by e-mail for enquiries."
+  },
+  "courses": [
+   {
+    "term": {
+     "ko": "학부",
+     "en": "Undergraduate"
+    },
+    "name": {
+     "ko": "디지털공학",
+     "en": "Digital Engineering"
+    }
+   },
+   {
+    "term": {
+     "ko": "학부",
+     "en": "Undergraduate"
+    },
+    "name": {
+     "ko": "전력전자 I / II",
+     "en": "Power Electronics I / II"
+    }
+   },
+   {
+    "term": {
+     "ko": "학부",
+     "en": "Undergraduate"
+    },
+    "name": {
+     "ko": "계통연계시스템",
+     "en": "Grid-Connected Systems"
+    }
+   },
+   {
+    "term": {
+     "ko": "학부",
+     "en": "Undergraduate"
+    },
+    "name": {
+     "ko": "미래차전력변환",
+     "en": "Power Conversion for Future Vehicles"
+    }
+   },
+   {
+    "term": {
+     "ko": "대학원",
+     "en": "Graduate"
+    },
+    "name": {
+     "ko": "디지털시스템제어",
+     "en": "Digital System Control"
+    }
+   },
+   {
+    "term": {
+     "ko": "대학원",
+     "en": "Graduate"
+    },
+    "name": {
+     "ko": "에너지변환특론",
+     "en": "Advanced Energy Conversion"
+    }
+   },
+   {
+    "term": {
+     "ko": "대학원",
+     "en": "Graduate"
+    },
+    "name": {
+     "ko": "전력전자특론",
+     "en": "Advanced Power Electronics"
+    }
+   }
+  ]
+ },
+ "equipment": [
+  {
+   "cat": {
+    "ko": "제어·개발 보드",
+    "en": "Control & Development Boards"
+   },
+   "items": [
+    "TI TMS320F28377 / F28335 / C28346 / VC33 기반 제어 보드 (자체 설계)",
+    "easyDSP 에뮬레이터",
+    "XDS100 V2 / XDS560 V2 / XDS200 에뮬레이터",
+    "SDS100i 에뮬레이터"
+   ]
+  },
+  {
+   "cat": {
+    "ko": "계측 장비",
+    "en": "Measurement Equipment"
+   },
+   "items": [
+    "LeCroy WaveRunner 604Zi (400 MHz, 4ch)",
+    "LeCroy WaveSurfer 510 (1 GHz, 4ch)",
+    "LeCroy WaveSurfer 3024 (200 MHz, 4ch)",
+    "LeCroy ADP300 / HVD3102 / HVD3102A 고전압 차동 프로브",
+    "LeCroy CP150 (150 A) / CP030 (30 A) 전류 프로브",
+    "HIOKI PW3390 전력분석기",
+    "Testo 868 열화상 카메라"
+   ]
+  },
+  {
+   "cat": {
+    "ko": "전력 설비",
+    "en": "Power Facilities"
+   },
+   "items": [
+    "3상 슬라이닥스",
+    "단권 슬라이닥스",
+    "220 V / 110 V 변압기",
+    "M-G 세트"
+   ]
+  },
+  {
+   "cat": {
+    "ko": "소프트웨어",
+    "en": "Software"
+   },
+   "items": [
+    "MATLAB / Simulink",
+    "PLECS",
+    "PSIM",
+    "Cadence OrCAD",
+    "NI LabVIEW (Academic Site License)"
+   ]
+  }
+ ],
+ "recruit": {
+  "title": {
+   "ko": "함께 연구할 학생을 찾습니다",
+   "en": "We are recruiting students"
+  },
+  "intro": {
+   "ko": "전동기를 직접 돌려 보고, 인버터를 직접 만들어 보고 싶은 학생을 환영합니다. 학부연구생부터 석·박사 과정까지 모집합니다.",
+   "en": "If you want to spin a real motor and build a real inverter, you are welcome here. We recruit undergraduate researchers as well as M.S. and Ph.D. students."
+  },
+  "targets": [
+   {
+    "ko": "3학년: 전력전자·전기기기·제어공학을 수강한 학생 — 인버터 보드 제작과 DSP 코딩부터 시작합니다.",
+    "en": "3rd-year: students who have taken power electronics, electric machines or control — start with inverter boards and DSP coding."
+   },
+   {
+    "ko": "2학년: 회로이론·C 언어에 관심 있는 학생 — 실험실 장비 사용법과 시뮬레이션(PLECS·MATLAB)을 배웁니다.",
+    "en": "2nd-year: students interested in circuits and C programming — learn lab equipment and simulation (PLECS, MATLAB)."
+   },
+   {
+    "ko": "대학원: 전동기 제어, 고장 진단, 계통연계 인버터 연구로 석·박사 과정을 진행합니다. 졸업생은 LG전자, 한국전기연구원, 지엠비코리아, HL만도 등에서 일하고 있습니다.",
+    "en": "Graduate: M.S./Ph.D. research on motor control, fault diagnosis and grid-tied inverters. Alumni work at LG Electronics, KERI, GMB Korea, HL Mando and more."
+   }
+  ],
+  "cta": {
+   "ko": "이메일로 문의하기",
+   "en": "Contact by e-mail"
+  }
+ },
+ "admin": {
+  "repo": "",
+  "branch": "main",
+  "salt": "",
+  "iv": "",
+  "ct": ""
+ },
+ "meta": {
+  "updated": "2026-11-08"
+ },
+ "gallery": [
+  {
+   "date": "2023-08",
+   "title": {
+    "ko": "하계 워크숍",
+    "en": "Summer Retreat"
+   },
+   "desc": {
+    "ko": "2023.08.28–29",
+    "en": "Aug. 28–29, 2023"
+   },
+   "photos": []
+  },
+  {
+   "date": "2023-07",
+   "title": {
+    "ko": "교수님 생신",
+    "en": "Professor's Birthday"
+   },
+   "desc": {
+    "ko": "",
+    "en": ""
+   },
+   "photos": []
+  },
+  {
+   "date": "2023-05",
+   "title": {
+    "ko": "스승의 날",
+    "en": "Teachers' Day"
+   },
+   "desc": {
+    "ko": "",
+    "en": ""
+   },
+   "photos": []
+  },
+  {
+   "date": "2023-04",
+   "title": {
+    "ko": "석사과정 특강",
+    "en": "Graduate Student Lecture"
+   },
+   "desc": {
+    "ko": "",
+    "en": ""
+   },
+   "photos": []
+  },
+  {
+   "date": "2023-03",
+   "title": {
+    "ko": "정교수 승진 기념",
+    "en": "Promotion to Full Professor"
+   },
+   "desc": {
+    "ko": "",
+    "en": ""
+   },
+   "photos": []
+  },
+  {
+   "date": "2023-03",
+   "title": {
+    "ko": "광양 매화축제",
+    "en": "Gwangyang Maehwa Festival Trip"
+   },
+   "desc": {
+    "ko": "",
+    "en": ""
+   },
+   "photos": []
+  },
+  {
+   "date": "2022-12",
+   "title": {
+    "ko": "한국조명·전기설비학회 학술대회",
+    "en": "KIIEE Conference"
+   },
+   "desc": {
+    "ko": "",
+    "en": ""
+   },
+   "photos": []
+  },
+  {
+   "date": "2022-11",
+   "title": {
+    "ko": "추계 학술대회 (제주)",
+    "en": "Fall Conference, Jeju"
+   },
+   "desc": {
+    "ko": "2022.11.09–11",
+    "en": "Nov. 9–11, 2022"
+   },
+   "photos": []
+  },
+  {
+   "date": "2022-08",
+   "title": {
+    "ko": "연구실 10주년",
+    "en": "10th Anniversary of the Lab"
+   },
+   "desc": {
+    "ko": "2022.08.10–13",
+    "en": "Aug. 10–13, 2022"
+   },
+   "photos": []
+  },
+  {
+   "date": "2022-05",
+   "title": {
+    "ko": "항공우주시스템공학회 학술대회",
+    "en": "SASE Conference"
+   },
+   "desc": {
+    "ko": "2022.05.18–20",
+    "en": "May 18–20, 2022"
+   },
+   "photos": []
+  }
+ ],
+ "equipmentPhotos": []
+}</script>
+<script>
+/* ========================================================================
+   전력변환연구실 웹사이트 — 단일 파일 앱
+   데이터는 위 <script id="site-data">에 JSON으로 들어 있습니다.
+   관리자 모드에서 [저장 및 게시]를 누르면 GitHub Contents API로
+   이 파일의 JSON 블록만 교체해 다시 올립니다.
+   ======================================================================== */
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+let D=JSON.parse($('#site-data').textContent);
+let lang=localStorage.getItem('lang')||'ko';
+if(lang!=='ko'&&lang!=='en')lang='ko';
+let admin=false, token=null, dirty=false;
+
+const PAGES=[
+  ['home',{ko:'Overview',en:'Overview'}],['news',{ko:'News',en:'News'}],['research',{ko:'Research',en:'Research'}],
+  ['professor',{ko:'Professor',en:'Professor'}],['members',{ko:'Members',en:'Members'}],['publications',{ko:'Publications',en:'Publications'}],
+  ['gallery',{ko:'Gallery',en:'Gallery'}],['contact',{ko:'Contact',en:'Contact'}]];
+const UI={
+  more:{ko:'더 보기',en:'More'},all:{ko:'전체 보기',en:'View all'},recruiting:{ko:'모집 중',en:'Recruiting'},preparing:{ko:'준비 중',en:'Coming soon'},
+  latestNews:{ko:'최근 소식',en:'Latest News'},researchAreas:{ko:'연구 분야',en:'Research Areas'},joinUs:{ko:'연구실 지원 안내',en:'Join Us'},
+  ongoing:{ko:'진행 중인 과제',en:'Ongoing Projects'},completed:{ko:'완료 과제',en:'Completed Projects'},projects:{ko:'연구 과제',en:'Research Projects'},
+  interests:{ko:'연구 관심사',en:'Research Interests'},education:{ko:'학력',en:'Education'},career:{ko:'경력',en:'Career'},activities:{ko:'학술·대외 활동',en:'Academic & Professional Activities'},patents:{ko:'특허',en:'Patents'},
+  cv:{ko:'CV 다운로드',en:'Download CV'},email:{ko:'이메일',en:'E-mail'},phone:{ko:'전화',en:'Phone'},fax:{ko:'팩스',en:'Fax'},office:{ko:'연구실',en:'Office'},address:{ko:'주소',en:'Address'},
+  phd:{ko:'박사과정',en:'Ph.D. Students'},ms:{ko:'석사과정',en:'M.S. Students'},ug:{ko:'학부연구생',en:'Undergraduate Researchers'},alumni:{ko:'졸업생',en:'Alumni'},
+  colDate:{ko:'졸업',en:'Graduated'},colName:{ko:'이름',en:'Name'},colDeg:{ko:'학위',en:'Degree'},colOrg:{ko:'현 소속',en:'Current Affiliation'},
+  intlJournal:{ko:'국제 저널',en:"Int'l Journals"},intlConf:{ko:'국제 학술대회',en:"Int'l Conferences"},domJournal:{ko:'국내 저널',en:'Domestic Journals'},domConf:{ko:'국내 학술대회',en:'Domestic Conferences'},
+  equipment:{ko:'보유 장비',en:'Facilities & Equipment'},courses:{ko:'담당 과목',en:'Courses'},files:{ko:'강의자료',en:'Materials'},download:{ko:'PDF',en:'PDF'},
+  contactTitle:{ko:'오시는 길',en:'Contact & Directions'},mapTitle:{ko:'지도',en:'Map'},homeNews:{ko:'소식',en:'News'},
+  researchIntro:{ko:'연구 소개',en:'Research'},newsIntro:{ko:'연구실의 새로운 소식을 전합니다.',en:'Latest news from the laboratory.'},
+  pubIntro:{ko:'연구실에서 발표한 논문 목록입니다.',en:'Papers published by the laboratory.'},lectureIntro:{ko:'담당 과목과 강의 자료입니다.',en:'Courses and lecture materials.'},
+  memIntro:{ko:'전력변환연구실 구성원을 소개합니다.',en:'People of the Power Conversion Laboratory.'},
+  noNews:{ko:'등록된 소식이 없습니다.',en:'No news yet.'},
+  footer:{ko:'전력변환연구실 · 경남대학교 전기공학과',en:'Power Conversion Laboratory · Dept. of Electrical Engineering, Kyungnam University'},
+  updated:{ko:'최종 수정',en:'Last updated'},
+  galleryIntro:{ko:'연구실 활동 사진 — 워크숍, 학회 출장, 기념일 등',en:'Lab life — workshops, conference trips and celebrations'},
+  noPhotos:{ko:'사진 준비 중',en:'Photos coming soon'},
+  equipPhotos:{ko:'실험실·장비 사진',en:'Lab & Equipment Photos'},
+  recentPhotos:{ko:'연구실 활동',en:'Lab Life'},
+};
+const T=k=>UI[k][lang];
+const t=o=>!o?'':(typeof o==='string'?o:(o[lang]||o[lang==='ko'?'en':'ko']||''));
+
+/* ─ path helpers ─ */
+const get=(p,o=D)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+const set=(p,v,o=D)=>{const ks=p.split('.');let a=o;for(let i=0;i<ks.length-1;i++){if(a[ks[i]]==null)a[ks[i]]=isNaN(ks[i+1])?{}:[];a=a[ks[i]];}a[ks[ks.length-1]]=v;};
+const isB=o=>o&&typeof o==='object'&&!Array.isArray(o)&&('ko' in o||'en' in o);
+
+/* ─ DOM builder ─ */
+function h(tag,attrs,...kids){
+  const el=document.createElement(tag);
+  if(attrs)for(const[k,v]of Object.entries(attrs)){
+    if(v==null||v===false)continue;
+    if(k==='class')el.className=v;else if(k==='html')el.innerHTML=v;else if(k.startsWith('on'))el.addEventListener(k.slice(2),v);
+    else if(k==='dataset')Object.assign(el.dataset,v);else el.setAttribute(k,v===true?'':v);
+  }
+  for(const k of kids.flat(Infinity)){if(k==null||k===false)continue;el.append(k.nodeType?k:document.createTextNode(String(k)));}
+  return el;
+}
+/* 편집 가능한 텍스트. path는 이중언어 객체 또는 문자열 필드 경로 */
+function ed(path,tag='span',cls){
+  const v=get(path);
+  let text,edPath,missing=false;
+  if(isB(v)){text=v[lang]||'';if(!text&&v[lang==='ko'?'en':'ko']){text=v[lang==='ko'?'en':'ko'];missing=true;}edPath=path+'.'+lang;}
+  else{text=v==null?'':String(v);edPath=path;if(lang==='en'&&/\.period$/.test(path))text=text.replace('현재','present');}
+  return h(tag,{class:[cls,missing&&!admin?'missing':''].filter(Boolean).join(' ')||null,'data-edit':edPath},text);
+}
+/* 리스트 아이템 제어 (관리자) */
+function ictl(path,i,len,onchange){
+  return h('div',{class:'ictl'},
+    h('button',{type:'button',title:'위로',onclick:()=>{if(i>0){const a=get(path);[a[i-1],a[i]]=[a[i],a[i-1]];markDirty();onchange();}}},'↑'),
+    h('button',{type:'button',title:'아래로',onclick:()=>{const a=get(path);if(i<a.length-1){[a[i+1],a[i]]=[a[i],a[i+1]];markDirty();onchange();}}},'↓'),
+    h('button',{type:'button',title:'모든 항목 편집',onclick:()=>editFields(path+'.'+i,onchange)},'⚙'),
+    h('button',{type:'button',class:'del',title:'삭제',onclick:()=>{if(confirm('이 항목을 삭제할까요?')){get(path).splice(i,1);markDirty();onchange();}}},'✕'));
+}
+function addBtn(path,tpl,onchange,label='+ 항목 추가'){
+  return h('button',{type:'button',class:'addbtn',onclick:()=>{const a=get(path)||(set(path,[]),get(path));a.unshift(JSON.parse(JSON.stringify(tpl)));markDirty();onchange();editFields(path+'.0',onchange);}},label);
+}
+const B=()=>({ko:'',en:''});
+const TPL={
+  news:()=>({date:new Date().toISOString().slice(0,7),text:B(),link:''}),
+  area:()=>({title:B(),desc:B(),tags:[],image:''}),
+  proj:()=>({title:B(),sponsor:B(),period:''}),
+  pt:()=>({period:'',text:B()}),
+  mem:()=>({name:B(),role:B(),topic:B(),photo:'',email:''}),
+  alum:()=>({date:'',name:B(),degree:{ko:'석사',en:'M.S.'},org:B(),position:B()}),
+  pub:()=>({year:String(new Date().getFullYear()),date:'',authors:'',title:'',venue:'',vol:'',index:'',doi:''}),
+  course:()=>({term:{ko:'학부',en:'Undergraduate'},name:B()}),
+  kw:()=>B(), target:()=>B(), equip:()=>({cat:B(),items:[]}),
+  event:()=>({date:new Date().toISOString().slice(0,7),title:B(),desc:B(),photos:[]}),
+  photo:()=>({src:'',cap:B()}),
+};
+
+/* ========================= 페이지 렌더링 ========================= */
+function render(){
+  document.documentElement.lang=lang;
+  $$('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.lang===lang));
+  $('#brandSub').textContent=t(D.site.univ)+' · '+t(D.site.dept);
+  $('#brandName').textContent=t(D.site.name);
+  const nav=$('#nav');nav.replaceChildren(...PAGES.map(([id,l])=>h('a',{href:'#'+id,'data-page':id},l[lang])));
+  renderHome();renderNews();renderResearch();renderProfessor();renderMembers();renderPubs();renderGallery();renderContact();
+  $('#footText').replaceChildren(h('div',null,'© '+new Date().getFullYear()+' '+T('footer')),h('div',{class:'mono',style:'font-size:12px;margin-top:3px'},t(D.site.address)),
+    h('div',{style:'font-size:12px;margin-top:3px'},T('updated')+': '+(D.meta?.updated||'')));
+  $('#adminBtn').textContent=lang==='ko'?'관리자':'Admin';
+  route();
+  if(admin)bindEditing();
+}
+function pageHead(title,desc){return h('div',{class:'page-h'},h('div',null,h('h1',null,title),desc?h('p',null,desc):null));}
+
+function heroSVG(){
+  return `<svg viewBox="0 0 520 300" role="img" aria-label="${lang==='ko'?'직류 전원에서 3상 인버터를 거쳐 전동기를 구동하는 개념도':'Concept: DC source, three-phase inverter, motor'}">
+  <defs><linearGradient id="gm" x1="0" x2="1"><stop offset="0" stop-color="#2E63D9"/><stop offset="1" stop-color="#8FB3FF"/></linearGradient></defs>
+  <!-- DC source -->
+  <g font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#95A3BF">
+    <rect x="18" y="112" width="54" height="76" rx="10" fill="#161A22" stroke="#A9BEEF" stroke-width="1.6"/>
+    <rect x="34" y="104" width="22" height="8" rx="2" fill="#A9BEEF"/>
+    <rect x="28" y="124" width="34" height="12" rx="2" fill="#F2A516"/><rect x="28" y="140" width="34" height="12" rx="2" fill="#F2A516" opacity=".75"/><rect x="28" y="156" width="34" height="12" rx="2" fill="#F2A516" opacity=".5"/>
+    <text x="45" y="206" text-anchor="middle" font-weight="700">V<tspan baseline-shift="sub" font-size="8">dc</tspan></text>
+  </g>
+  <!-- DC bus -->
+  <path d="M72 122 H124 M72 178 H124" stroke="#A9BEEF" stroke-width="2"/>
+  <path d="M124 92 V208 M124 92 H286 M124 208 H286" stroke="#A9BEEF" stroke-width="2" fill="none"/>
+  <!-- 3 legs -->
+  ${[0,1,2].map(i=>{const x=150+i*58;const cls=['p1','p2','p3'][i];return `
+    <path d="M${x} 92 V208" stroke="#A9BEEF" stroke-width="2"/>
+    <g class="sw a ${cls}"><rect class="gate" x="${x-14}" y="104" width="28" height="30" rx="5"/><rect class="body" x="${x-10}" y="108" width="20" height="22" rx="4"/><path d="M${x-4} 113 L${x+4} 119 L${x-4} 125" fill="none" stroke="#A9BEEF" stroke-width="1.4"/></g>
+    <g class="sw b ${cls}"><rect class="gate" x="${x-14}" y="166" width="28" height="30" rx="5"/><rect class="body" x="${x-10}" y="170" width="20" height="22" rx="4"/><path d="M${x-4} 175 L${x+4} 181 L${x-4} 187" fill="none" stroke="#A9BEEF" stroke-width="1.4"/></g>
+    <circle cx="${x}" cy="150" r="3" fill="#A9BEEF"/>`;}).join('')}
+  <!-- phase lines to motor -->
+  <path class="flow" d="M150 150 H302 V124 H372" stroke="#2E63D9" stroke-width="2.2" fill="none"/>
+  <path class="flow" d="M208 150 H302 V150 H372" stroke="#F2A516" stroke-width="2.2" fill="none" style="animation-delay:-.4s"/>
+  <path class="flow" d="M266 150 H302 V176 H372" stroke="#0B7A3B" stroke-width="2.2" fill="none" style="animation-delay:-.8s"/>
+  <!-- PWM strip -->
+  <path class="pwm" d="M130 258 h8 v-14 h5 v14 h12 v-14 h8 v14 h7 v-14 h14 v14 h5 v-14 h18 v14 h4 v-14 h22 v14 h4 v-14 h18 v14 h5 v-14 h12 v14 h7 v-14 h8"/>
+  <text x="130" y="282" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#95A3BF">PWM</text>
+  <!-- sine waves -->
+  <path class="wave u" d="M300.0 258.0 L303.2 254.3 L306.4 250.7 L309.6 247.4 L312.8 244.6 L316.0 242.4 L319.2 240.9 L322.4 240.1 L325.6 240.1 L328.8 240.9 L332.0 242.4 L335.2 244.6 L338.4 247.4 L341.6 250.7 L344.8 254.3 L348.0 258.0 L351.2 261.7 L354.4 265.3 L357.6 268.6 L360.8 271.4 L364.0 273.6 L367.2 275.1 L370.4 275.9 L373.6 275.9 L376.8 275.1 L380.0 273.6 L383.2 271.4 L386.4 268.6 L389.6 265.3 L392.8 261.7 L396.0 258.0 L399.2 254.3 L402.4 250.7 L405.6 247.4 L408.8 244.6 L412.0 242.4 L415.2 240.9 L418.4 240.1 L421.6 240.1 L424.8 240.9 L428.0 242.4 L431.2 244.6 L434.4 247.4 L437.6 250.7 L440.8 254.3 L444.0 258.0 L447.2 261.7 L450.4 265.3 L453.6 268.6 L456.8 271.4 L460.0 273.6 L463.2 275.1 L466.4 275.9 L469.6 275.9 L472.8 275.1 L476.0 273.6 L479.2 271.4 L482.4 268.6 L485.6 265.3 L488.8 261.7 L492.0 258.0"/><path class="wave v" d="M300.0 273.6 L303.2 275.1 L306.4 275.9 L309.6 275.9 L312.8 275.1 L316.0 273.6 L319.2 271.4 L322.4 268.6 L325.6 265.3 L328.8 261.7 L332.0 258.0 L335.2 254.3 L338.4 250.7 L341.6 247.4 L344.8 244.6 L348.0 242.4 L351.2 240.9 L354.4 240.1 L357.6 240.1 L360.8 240.9 L364.0 242.4 L367.2 244.6 L370.4 247.4 L373.6 250.7 L376.8 254.3 L380.0 258.0 L383.2 261.7 L386.4 265.3 L389.6 268.6 L392.8 271.4 L396.0 273.6 L399.2 275.1 L402.4 275.9 L405.6 275.9 L408.8 275.1 L412.0 273.6 L415.2 271.4 L418.4 268.6 L421.6 265.3 L424.8 261.7 L428.0 258.0 L431.2 254.3 L434.4 250.7 L437.6 247.4 L440.8 244.6 L444.0 242.4 L447.2 240.9 L450.4 240.1 L453.6 240.1 L456.8 240.9 L460.0 242.4 L463.2 244.6 L466.4 247.4 L469.6 250.7 L472.8 254.3 L476.0 258.0 L479.2 261.7 L482.4 265.3 L485.6 268.6 L488.8 271.4 L492.0 273.6" opacity=".9"/><path class="wave w" d="M300.0 242.4 L303.2 244.6 L306.4 247.4 L309.6 250.7 L312.8 254.3 L316.0 258.0 L319.2 261.7 L322.4 265.3 L325.6 268.6 L328.8 271.4 L332.0 273.6 L335.2 275.1 L338.4 275.9 L341.6 275.9 L344.8 275.1 L348.0 273.6 L351.2 271.4 L354.4 268.6 L357.6 265.3 L360.8 261.7 L364.0 258.0 L367.2 254.3 L370.4 250.7 L373.6 247.4 L376.8 244.6 L380.0 242.4 L383.2 240.9 L386.4 240.1 L389.6 240.1 L392.8 240.9 L396.0 242.4 L399.2 244.6 L402.4 247.4 L405.6 250.7 L408.8 254.3 L412.0 258.0 L415.2 261.7 L418.4 265.3 L421.6 268.6 L424.8 271.4 L428.0 273.6 L431.2 275.1 L434.4 275.9 L437.6 275.9 L440.8 275.1 L444.0 273.6 L447.2 271.4 L450.4 268.6 L453.6 265.3 L456.8 261.7 L460.0 258.0 L463.2 254.3 L466.4 250.7 L469.6 247.4 L472.8 244.6 L476.0 242.4 L479.2 240.9 L482.4 240.1 L485.6 240.1 L488.8 240.9 L492.0 242.4" opacity=".9"/>
+  <text x="300" y="282" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#95A3BF">i<tspan baseline-shift="sub" font-size="8">u</tspan>, i<tspan baseline-shift="sub" font-size="8">v</tspan>, i<tspan baseline-shift="sub" font-size="8">w</tspan></text>
+  <!-- motor -->
+  <g>
+    <circle cx="445" cy="150" r="58" fill="url(#gm)"/>
+    <circle cx="445" cy="150" r="48" fill="#0A0C10"/>
+    ${Array.from({length:12},(_,k)=>{const a=k*30*Math.PI/180;const x1=445+Math.cos(a)*48,y1=150+Math.sin(a)*48,x2=445+Math.cos(a)*41,y2=150+Math.sin(a)*41;return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#A9BEEF" stroke-width="3" stroke-linecap="round"/>`;}).join('')}
+    <g class="rotor">
+      <circle cx="445" cy="150" r="30" fill="#232834" stroke="#A9BEEF" stroke-width="1.5"/>
+      <path d="M445 122 a28 28 0 0 1 0 56 Z" fill="#F2A516" opacity=".9"/>
+      <path d="M445 122 a28 28 0 0 0 0 56 Z" fill="#2E63D9" opacity=".9"/>
+      <text x="459" y="154" font-size="12" font-weight="800" fill="#161A22" font-family="ui-monospace,Menlo,monospace">N</text>
+      <text x="424" y="154" font-size="12" font-weight="800" fill="#161A22" font-family="ui-monospace,Menlo,monospace">S</text>
+      <circle cx="445" cy="150" r="5" fill="#A9BEEF"/>
+    </g>
+    <rect x="503" y="144" width="14" height="12" rx="2" fill="#A9BEEF"/>
+    <text x="445" y="226" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#95A3BF" font-weight="700">PMSM</text>
+  </g>
+  <text x="208" y="78" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#95A3BF" font-weight="700">3-Φ INVERTER</text>
+</svg>`;
+}
+
+function renderHome(){
+  const root=$('#pg-home');
+  const newsTop=[...D.news].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);
+  const counts=pubCounts();
+  const statVal={intlJournal:counts.intlJournal,intlConf:counts.intlConf,projects:D.research.ongoing.length+D.research.completed.length,alumni:D.members.alumni.length};
+  root.replaceChildren(
+    h('div',{class:'hero'},
+      h('div',null,
+        h('h1',null,h('small',null,t(D.site.univ)+' · '+t(D.site.dept)),ed('site.name')),
+        ed('site.tagline','div','tag'),
+        ed('hero.intro','p','lead'),
+        h('div',{class:'acts'},h('a',{class:'btn primary',href:'#members'},T('joinUs')),h('a',{class:'btn ghost',href:'#research'},T('researchAreas')))
+      ),
+      h('div',{class:'hero-art',html:heroSVG()})
+    ),
+    h('div',{class:'sect'},h('h2',null,T('researchAreas')),
+      h('div',{class:'chips','data-list':'hero.keywords'},
+        D.hero.keywords.map((k,i)=>h('span',{class:'chip'},ed('hero.keywords.'+i),ictl('hero.keywords',i,D.hero.keywords.length,render))),
+        addBtn('hero.keywords',TPL.kw(),render,'+ 키워드'))),
+    h('div',{class:'stats'},D.hero.stats.map(s=>h('div',{class:'stat'},h('b',null,statVal[s.key]??''),h('span',null,t(s.label))))),
+    (()=>{const ph=[...(D.gallery||[])].sort((a,b)=>b.date.localeCompare(a.date)).flatMap(g=>(g.photos||[]).filter(p=>p.src).map(p=>({src:p.src,cap:t(p.cap)||t(g.title)}))).slice(0,4);
+      return ph.length?h('div',{class:'sect'},h('h2',null,T('recentPhotos'),h('a',{href:'#gallery',class:'btn ghost sm',style:'margin-left:auto'},T('all'))),
+        h('div',{class:'strip'},ph.map(p=>{const d=h('div',{class:'ph'},h('img',{src:p.src,alt:p.cap,loading:'lazy'}),p.cap?h('div',{class:'cap'},p.cap):null);d.addEventListener('click',()=>lightbox(p.src,p.cap));return d;}))):null;})(),
+    h('div',{class:'grid g2 sect',style:'align-items:start'},
+      h('div',{class:'card home-news'},h('h2',{style:'font-size:20px;color:var(--navy);margin-bottom:8px'},T('latestNews')),
+        newsTop.length?newsTop.map(n=>h('div',{class:'item'},h('span',{class:'mono',style:'color:var(--muted);font-size:13.5px'},n.date,isNew(n.date)?[' ',h('span',{class:'badge new'},'NEW')]:null),h('span',null,t(n.text)))):h('div',{class:'empty'},T('noNews')),
+        h('div',{style:'margin-top:12px'},h('a',{href:'#news',class:'btn ghost sm'},T('all')))),
+      h('div',{class:'recruit'},h('h2',null,ed('recruit.title')),ed('recruit.intro','p'),
+        h('ul',{'data-list':'recruit.targets'},D.recruit.targets.map((x,i)=>h('li',null,ed('recruit.targets.'+i),ictl('recruit.targets',i,D.recruit.targets.length,render))),addBtn('recruit.targets',TPL.target(),render,'+ 대상 추가')),
+        h('a',{class:'btn primary',href:'mailto:'+D.site.email},ed('recruit.cta')))
+    )
+  );
+}
+function isNew(ym){const d=new Date(ym.length===7?ym+'-15':ym);return (Date.now()-d)/864e5<120;}
+
+function renderNews(){
+  const root=$('#pg-news');
+  const idx=D.news.map((n,i)=>i).sort((a,b)=>D.news[b].date.localeCompare(D.news[a].date));
+  root.replaceChildren(pageHead('News',T('newsIntro')),addBtn('news',TPL.news(),render,'+ 소식 추가'),
+    h('div',{class:'news-list','data-list':'news'},
+      idx.length?idx.map(i=>{const n=D.news[i];return h('div',{class:'row'},
+        h('div',{class:'d mono'},ed('news.'+i+'.date'),isNew(n.date)?[' ',h('span',{class:'badge new'},'NEW')]:null),
+        h('div',null,ed('news.'+i+'.text','p'),n.link?h('a',{href:n.link,target:'_blank',rel:'noopener',style:'font-size:13.5px'},lang==='ko'?'자세히 →':'More →'):null,ictl('news',i,D.news.length,render)));}):h('div',{class:'empty'},T('noNews'))));
+}
+
+function renderResearch(){
+  const root=$('#pg-research');
+  const areas=D.research.areas, on=D.research.ongoing, done=D.research.completed;
+  root.replaceChildren(pageHead(T('researchIntro'),null),ed('research.intro','p',null),
+    h('div',{class:'sect'},h('h2',null,T('researchAreas')),addBtn('research.areas',TPL.area(),render,'+ 연구 분야 추가'),
+      h('div',{class:'grid g2','data-list':'research.areas'},areas.map((a,i)=>h('div',{class:'card area'},
+        h('div',{class:'ic','data-img':'research.areas.'+i+'.image',title:admin?'클릭해서 그림 설정':null},a.image?h('img',{src:a.image,alt:t(a.title)}):areaIcon(i)),
+        h('div',null,h('h3',null,ed('research.areas.'+i+'.title')),ed('research.areas.'+i+'.desc','p'),
+          h('div',{class:'chips'},(a.tags||[]).map(x=>h('span',{class:'chip',style:'font-size:12px;padding:3px 10px'},x))),ictl('research.areas',i,areas.length,render)))))),
+    D.research.collab?h('div',{class:'sect'},h('h2',null,ed('research.collab.title')),ed('research.collab.intro','p'),
+      h('div',{class:'grid g2','data-list':'research.collab.images'},(D.research.collab.images||[]).map((im,i)=>h('figure',{class:'card',style:'margin:0;padding:12px'},
+        h('div',{'data-img':'research.collab.images.'+i+'.src',style:'border-radius:10px;overflow:hidden;background:var(--bg-soft)'},im.src?h('img',{src:im.src,alt:t(im.cap),style:'width:100%;height:220px;object-fit:contain;background:#fff'}):h('div',{class:'empty'},'image')),
+        h('figcaption',{style:'font-size:13.5px;color:var(--muted);margin-top:8px'},ed('research.collab.images.'+i+'.cap')),ictl('research.collab.images',i,D.research.collab.images.length,render)))),
+      addBtn('research.collab.images',{src:'',cap:B()},render,'+ 사진 추가')):null,
+    h('div',{class:'sect'},h('h2',null,T('ongoing'),h('span',{class:'cnt'},on.length)),addBtn('research.ongoing',TPL.proj(),render,'+ 과제 추가'),
+      on.length?h('div',{'data-list':'research.ongoing'},on.map((p,i)=>projRow('research.ongoing',i,on.length,true))):h('div',{class:'empty'},T('preparing'))),
+    h('div',{class:'sect'},h('h2',null,T('completed'),h('span',{class:'cnt'},done.length)),addBtn('research.completed',TPL.proj(),render,'+ 과제 추가'),
+      h('div',{'data-list':'research.completed'},done.slice(0,8).map((p,i)=>projRow('research.completed',i,done.length,false)),
+        done.length>8?h('details',{class:'more'},h('summary',null,T('more')+' ('+(done.length-8)+')'),done.slice(8).map((p,j)=>projRow('research.completed',j+8,done.length,false))):null)),
+    h('div',{class:'sect'},h('h2',null,T('equipPhotos')),photoGrid('equipmentPhotos',render)),
+    h('div',{class:'sect'},h('h2',null,T('equipment')),addBtn('equipment',TPL.equip(),render,'+ 분류 추가'),
+      h('div',{class:'grid g2','data-list':'equipment'},D.equipment.map((e,i)=>h('div',{class:'card'},h('h3',{style:'font-size:16px;color:var(--navy);margin-bottom:8px'},ed('equipment.'+i+'.cat')),
+        h('ul',{class:'plain',style:'font-size:14.5px'},e.items.map((x,j)=>h('li',null,ed('equipment.'+i+'.items.'+j)))),ictl('equipment',i,D.equipment.length,render)))))
+  );
+}
+function areaIcon(i){
+  const icons=[
+    '<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke="#8FB3FF" stroke-width="2.2" stroke-linecap="round"><circle cx="24" cy="24" r="14"/><circle cx="24" cy="24" r="5" fill="#F2A516" stroke="none"/><path d="M24 4v6M24 38v6M4 24h6M38 24h6M9.9 9.9l4.2 4.2M33.9 33.9l4.2 4.2M9.9 38.1l4.2-4.2M33.9 14.1l4.2-4.2"/></svg>',
+    '<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke="#8FB3FF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 24h8l4-12 6 24 5-16 3 4h10"/><circle cx="36" cy="12" r="5" stroke="#F2A516"/><path d="M34 12h4M36 10v4" stroke="#F2A516"/></svg>',
+    '<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke="#8FB3FF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 34h32M12 34V22l12-10 12 10v12"/><path d="M26 6l-6 10h8l-6 10" stroke="#F2A516"/></svg>',
+    '<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke="#8FB3FF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="32" height="32" rx="4"/><circle cx="24" cy="26" r="9"/><circle cx="24" cy="26" r="3" fill="#F2A516" stroke="none"/><path d="M14 14h6"/></svg>'];
+  return h('span',{html:icons[i%icons.length]});
+}
+function projRow(path,i,len,ongoing){
+  const p=get(path)[i];
+  return h('div',{class:'proj'},h('div',null,h('div',{class:'t'},ed(path+'.'+i+'.title')),h('div',{class:'s'},ed(path+'.'+i+'.sponsor')),ictl(path,i,len,render)),
+    h('div',{class:'p mono'},h('span',{class:'badge '+(ongoing?'ongoing':'done'),style:'margin-right:8px'},ongoing?(lang==='ko'?'진행 중':'Ongoing'):(lang==='ko'?'완료':'Done')),ed(path+'.'+i+'.period')));
+}
+
+function renderProfessor(){
+  const root=$('#pg-professor'), P=D.professor, S=D.site;
+  const links=[['scholar','Google Scholar'],['orcid','ORCID'],['researchgate','ResearchGate']].filter(([k])=>S.links[k]);
+  const tl=(key)=>(!admin&&!(P[key]&&P[key].length))?null:h('div',{class:'sect',style:'margin-top:34px'},h('h2',{style:'font-size:20px'},T(key)),addBtn('professor.'+key,TPL.pt(),render),
+    (P[key]&&P[key].length)?h('ul',{class:'tl','data-list':'professor.'+key},P[key].map((x,i)=>h('li',null,h('span',{class:'per mono'},ed('professor.'+key+'.'+i+'.period')),h('span',null,ed('professor.'+key+'.'+i+'.text'),ictl('professor.'+key,i,P[key].length,render))))):(admin?h('div',{class:'empty'},'(비어 있음 — 공개 화면에서는 숨겨집니다)'):null));
+  root.replaceChildren(pageHead('Professor',null),
+    h('div',{class:'prof'},
+      h('div',null,
+        h('div',{class:'photo','data-img':'professor.photo',title:admin?'클릭해서 사진 설정':null},P.photo?h('img',{src:P.photo,alt:t(P.name)}):h('div',{class:'ph'},h('span',{html:'<svg viewBox="0 0 48 48" fill="none" stroke="#5B6B86" stroke-width="2"><circle cx="24" cy="18" r="9"/><path d="M8 42c2-9 8-14 16-14s14 5 16 14"/></svg>'}),lang==='ko'?'사진 준비 중':'Photo coming soon')),
+        h('div',{class:'pname'},h('h2',null,ed('professor.name')),h('div',{class:'role'},ed('professor.title')),h('div',{style:'color:var(--muted);font-size:14px'},t(S.univ)+' · '+t(S.dept))),
+        h('div',{class:'ct'},
+          h('div',null,h('span',{class:'k'},T('email')),h('a',{href:'mailto:'+S.email},S.email)),
+          h('div',null,h('span',{class:'k'},T('phone')),h('span',{class:'mono'},S.phone)),
+          h('div',null,h('span',{class:'k'},T('office')),h('span',null,t(S.room)))),
+        h('div',{class:'ext'},S.cvFile?h('a',{class:'btn primary sm',href:S.cvFile,target:'_blank',rel:'noopener'},T('cv')):null,
+          links.map(([k,l])=>h('a',{class:'btn ghost sm',href:S.links[k],target:'_blank',rel:'noopener'},l)))
+      ),
+      h('div',null,
+        ed('professor.bio','p','bio'),
+        h('div',{class:'sect',style:'margin-top:30px'},h('h2',{style:'font-size:20px'},T('interests')),addBtn('professor.interests',TPL.kw(),render),
+          h('ul',{class:'plain','data-list':'professor.interests'},P.interests.map((x,i)=>h('li',null,ed('professor.interests.'+i),ictl('professor.interests',i,P.interests.length,render))))),
+        (()=>{const C=D.lectures.courses||[];const grp=(key,label)=>{const arr=C.map((c,i)=>({c,i})).filter(x=>(x.c.term.en||'').toLowerCase().startsWith(key));return arr.length?h('div',{style:'margin-bottom:12px'},h('div',{style:'font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px'},label),h('div',{class:'chips'},arr.map(({c,i})=>h('span',{class:'chip'},ed('lectures.courses.'+i+'.name'),ictl('lectures.courses',i,C.length,render))))):null;};
+          return (C.length||admin)?h('div',{class:'sect',style:'margin-top:34px'},h('h2',{style:'font-size:20px'},T('courses')),addBtn('lectures.courses',TPL.course(),render,'+ 과목 추가'),
+            h('div',{'data-list':'lectures.courses'},grp('under',lang==='ko'?'학부':'Undergraduate'),grp('grad',lang==='ko'?'대학원':'Graduate'))):null;})(),
+        tl('career'),tl('education'),tl('activities'),tl('patents')
+      )));
+}
+
+function renderMembers(){
+  const root=$('#pg-members'), M=D.members;
+  const group=(key)=>{const arr=M[key]||[];return h('div',{class:'sect'},h('h2',null,T(key),h('span',{class:'cnt'},arr.length||T('recruiting'))),addBtn('members.'+key,TPL.mem(),render,'+ 구성원 추가'),
+    arr.length?h('div',{class:'grid g3','data-list':'members.'+key},arr.map((m,i)=>h('div',{class:'card mem'},
+      h('div',{class:'av','data-img':'members.'+key+'.'+i+'.photo'},m.photo?h('img',{src:m.photo,alt:t(m.name)}):t(m.name).trim().charAt(0)),
+      h('div',null,h('h3',null,ed('members.'+key+'.'+i+'.name')),h('div',{class:'r'},ed('members.'+key+'.'+i+'.role')),ed('members.'+key+'.'+i+'.topic','p'),ictl('members.'+key,i,arr.length,render)))))
+    :h('div',{class:'empty'},T('recruiting')+' — ',h('a',{href:'mailto:'+D.site.email},D.site.email)));};
+  const al=M.alumni;
+  root.replaceChildren(pageHead('Members',T('memIntro')),group('phd'),group('ms'),group('ug'),
+    h('div',{class:'sect'},h('h2',null,T('alumni'),h('span',{class:'cnt'},al.length)),addBtn('members.alumni',TPL.alum(),render,'+ 졸업생 추가'),
+      (()=>{const idx=al.map((a,i)=>i).sort((x,y)=>al[y].date.localeCompare(al[x].date)||x-y);
+        const groups=[];idx.forEach(i=>{const k=al[i].date;const g=groups.find(g=>g.k===k);g?g.items.push(i):groups.push({k,items:[i]});});
+        return h('div',{'data-list':'members.alumni'},groups.map(g=>h('div',{class:'agrp'},h('h3',{class:'pubyear'},semLabel(g.k)),
+          h('div',{class:'agrid'},g.items.map(i=>{const a=al[i];return h('div',{class:'acard'},
+            h('div',{class:'aph','data-img':'members.alumni.'+i+'.photo'},a.photo?h('img',{src:a.photo,alt:t(a.name),loading:'lazy'}):h('span',null,t(a.name).trim().charAt(0))),
+            h('div',{class:'an'},ed('members.alumni.'+i+'.name')),
+            h('div',{class:'ao'},ed('members.alumni.'+i+'.org')),
+            ictl('members.alumni',i,al.length,render));})))));})()));
+}
+function semLabel(ym){const [y,m]=ym.split(/[.\-]/);if(!m)return ym;const mm=parseInt(m,10);
+  const sem=mm<=2?(lang==='ko'?'전기':'Spring'):mm<=8?(lang==='ko'?'후기':'Summer'):(lang==='ko'?'':'');
+  return lang==='ko'?`${y}년 ${mm}월 졸업${sem?' · '+sem:''}`:`${['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mm]} ${y}`;
+}
+
+/* ─ publications ─ */
+const PUBKEYS=['intlJournal','intlConf','domJournal','domConf'];
+let pubTab=PUBKEYS[0];
+function pubCounts(){const c={};PUBKEYS.forEach(k=>c[k]=(D.publications[k]||[]).length);return c;}
+function boldProf(authors){
+  const parts=String(authors||'').split(/,\s*/);
+  return parts.flatMap((a,i)=>{const n=a.replace(/[.\s]/g,'').toLowerCase();const me=n==='shhwang'||n==='shwang'||n==='seonhwanhwang'||a.includes('황선환');return [me?h('b',null,a):a,i<parts.length-1?', ':''];});
+}
+function renderPubs(){
+  const root=$('#pg-publications'), c=pubCounts(), list=D.publications[pubTab]||[];
+  const years=[...new Set(list.map(p=>String(p.year)))].sort((a,b)=>b.localeCompare(a));
+  let n=list.length;
+  root.replaceChildren(pageHead('Publications',T('pubIntro')),
+    h('div',{class:'pubsum'},PUBKEYS.map(k=>h('div',{class:'card'},h('b',null,c[k]),h('span',null,T(k))))),
+    h('div',{class:'tabs',role:'tablist'},PUBKEYS.map(k=>h('button',{type:'button',role:'tab',class:k===pubTab?'on':'','aria-selected':k===pubTab?'true':'false',onclick:()=>{pubTab=k;renderPubs();if(admin)bindEditing();}},T(k)+' ('+c[k]+')'))),
+    addBtn('publications.'+pubTab,TPL.pub(),render,'+ 논문 추가'),
+    h('div',{'data-list':'publications.'+pubTab},years.map(y=>[h('h3',{class:'pubyear'},y),
+      list.map((p,i)=>({p,i})).filter(x=>String(x.p.year)===y).map(({p,i})=>h('div',{class:'pub'},h('div',{class:'n mono'},'['+(n--)+']'),
+        h('div',null,h('div',{class:'ti'},ed('publications.'+pubTab+'.'+i+'.title')),h('div',{class:'au'},boldProf(p.authors)),
+          h('div',{class:'ve'},[p.venue,p.vol].filter(Boolean).join(', '),p.date&&pubTab.startsWith('dom')?' ('+p.date+')':'',p.index?h('span',{class:'badge idx'},p.index):null,p.doi?h('a',{class:'doi',href:p.doi.startsWith('http')?p.doi:'https://doi.org/'+p.doi,target:'_blank',rel:'noopener'},'DOI'):null),
+          ictl('publications.'+pubTab,i,list.length,render))))])),
+    h('p',{class:'pubnote'},ed('publications.note')));
+}
+
+/* ─ 사진 공용 ─ */
+function photoTile(path,i,len,onchange){
+  const p=get(path)[i];
+  const tile=h('div',{class:'ph'+(p.src?'':' empty-ph'),'data-img':path+'.'+i+'.src'},
+    p.src?[h('img',{src:p.src,alt:t(p.cap)||'',loading:'lazy'}),t(p.cap)?h('div',{class:'cap'},t(p.cap)):null]:T('noPhotos'),
+    ictl(path,i,len,onchange));
+  if(p.src&&!admin)tile.addEventListener('click',()=>lightbox(p.src,t(p.cap)));
+  return tile;
+}
+function photoGrid(path,onchange,cls='photos'){
+  const arr=get(path)||[];
+  return [h('div',{class:cls,'data-list':path},arr.map((p,i)=>photoTile(path,i,arr.length,onchange)),
+    (!arr.length&&!admin)?h('div',{class:'ph empty-ph'},T('noPhotos')):null),
+    h('button',{type:'button',class:'addbtn',onclick:()=>{const a=get(path)||(set(path,[]),get(path));a.push(TPL.photo());markDirty();onchange();imageDialog(path+'.'+(a.length-1)+'.src');}},'+ 사진 추가')];
+}
+function lightbox(src,cap){const lb=$('#lb');lb.querySelector('img').src=src;lb.querySelector('.lbc').textContent=cap||'';lb.showModal();}
+$('#lb').addEventListener('click',e=>{if(e.target.tagName!=='IMG'||e.target.closest('.lbx'))$('#lb').close();});
+$('#lb .lbx').addEventListener('click',()=>$('#lb').close());
+
+function renderGallery(){
+  const root=$('#pg-gallery'), G=D.gallery||[];
+  const idx=G.map((g,i)=>i).sort((a,b)=>G[b].date.localeCompare(G[a].date));
+  root.replaceChildren(pageHead('Gallery',T('galleryIntro')),addBtn('gallery',TPL.event(),render,'+ 행사 추가'),
+    idx.length?h('div',{'data-list':'gallery'},idx.map(i=>{const g=G[i];return h('div',{class:'ev card'},
+      h('div',{class:'evh'},h('h3',null,ed('gallery.'+i+'.title')),h('span',{class:'d mono'},ed('gallery.'+i+'.date')),ictl('gallery',i,G.length,render)),
+      (t(g.desc)||admin)?ed('gallery.'+i+'.desc','p','desc'):null,
+      photoGrid('gallery.'+i+'.photos',render));})):h('div',{class:'empty'},T('noPhotos')));
+}
+function renderContact(){
+  const root=$('#pg-contact'), S=D.site;
+  const q=encodeURIComponent(S.mapQuery||t(S.address));
+  root.replaceChildren(pageHead('Contact',null),
+    h('div',{class:'contact'},
+      h('div',{class:'ct'},
+        h('div',null,h('span',{class:'k'},T('email')),h('a',{href:'mailto:'+S.email},S.email)),
+        h('div',null,h('span',{class:'k'},T('phone')),h('span',{class:'mono'},S.phone)),
+        h('div',null,h('span',{class:'k'},T('fax')),h('span',{class:'mono'},S.fax)),
+        h('div',null,h('span',{class:'k'},T('office')),ed('site.room')),
+        h('div',null,h('span',{class:'k'},T('address')),ed('site.address')),
+        h('div',{style:'border:0;padding-top:16px;display:block'},h('a',{class:'btn ghost sm',href:'https://www.google.com/maps/search/?api=1&query='+q,target:'_blank',rel:'noopener'},lang==='ko'?'Google 지도에서 열기':'Open in Google Maps'))),
+      h('div',{class:'map'},h('iframe',{title:T('mapTitle'),loading:'lazy',referrerpolicy:'no-referrer-when-downgrade',src:'https://www.google.com/maps?q='+q+'&z=17&output=embed'}))));
+}
+
+/* ========================= 라우팅 ========================= */
+function route(){
+  let id=(location.hash||'#home').slice(1).split('?')[0];
+  if(!PAGES.some(p=>p[0]===id))id='home';
+  $$('main>section').forEach(s=>s.classList.toggle('show',s.id==='page-'+id));
+  $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.page===id));
+  window.scrollTo({top:0,behavior:'instant'});
+  gcCount(id);
+}
+window.addEventListener('hashchange',route);
+$$('.lang button').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;localStorage.setItem('lang',lang);render();}));
+
+/* ========================= 방문자 통계 (GoatCounter) ========================= */
+function gcInit(){
+  const code=D.site.goatcounter;if(!code||localStorage.getItem('skipgc')==='t'||location.protocol==='file:')return;
+  window.goatcounter={no_onload:true};
+  const s=document.createElement('script');s.async=true;s.src='https://gc.zgo.at/count.js';s.dataset.goatcounter='https://'+code+'.goatcounter.com/count';document.head.appendChild(s);
+}
+function gcCount(id){if(window.goatcounter&&window.goatcounter.count&&!(localStorage.getItem('skipgc')==='t'))window.goatcounter.count({path:(D.site.repoPath||location.pathname.replace(/\/$/,''))+'/'+id});}
+
+/* ========================= 관리자 ========================= */
+function markDirty(){dirty=true;$('#dirty').textContent='● 저장되지 않은 변경';}
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+const toast=(m)=>{const el=$('#toast');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600);};
+
+function bindEditing(){
+  $$('[data-edit]').forEach(el=>{
+    if(el.isContentEditable)return;
+    el.setAttribute('contenteditable','plaintext-only');
+    if(!el.isContentEditable)el.setAttribute('contenteditable','true');
+    el.addEventListener('input',()=>{set(el.dataset.edit,el.innerText.replace(/\n$/,''));markDirty();});
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&el.tagName!=='P'){e.preventDefault();el.blur();}});
+    el.addEventListener('click',e=>{if(e.target.closest('a'))e.preventDefault();});
+  });
+  $$('[data-img]').forEach(el=>{el.onclick=(e)=>{e.preventDefault();e.stopPropagation();imageDialog(el.dataset.img);};});
+}
+function unbindEditing(){$$('[data-edit]').forEach(el=>el.removeAttribute('contenteditable'));}
+function enterAdmin(){admin=true;document.body.classList.add('admin');localStorage.setItem('skipgc','t');render();toast('관리자 모드: 점선 글자를 클릭해 수정하세요');}
+function exitAdmin(){if(dirty&&!confirm('저장하지 않은 변경이 있습니다. 편집을 종료할까요?'))return;admin=false;token=null;document.body.classList.remove('admin');unbindEditing();render();}
+
+$('#adminBtn').addEventListener('click',()=>{ if(admin){exitAdmin();return;} if(!(window.crypto&&crypto.subtle)){toast('관리자 기능은 공개된 주소(https://…github.io)에서 사용할 수 있습니다.');return;} D.admin&&D.admin.ct?loginDialog():setupDialog(); });
+$('#adminBar').addEventListener('click',e=>{
+  const act=e.target.dataset.act;if(!act)return;
+  ({save:saveDialog,site:()=>editFields('site',render,'사이트 설정'),download:downloadHtml,backup:backupJson,restore:restoreJson,stats:openStats,reset:resetDialog,exit:exitAdmin})[act]();
+});
+
+/* ─ dialog helper ─ */
+function dialog(title,hint,body,buttons){
+  const dlg=$('#dlg');dlg.replaceChildren(h('form',{class:'dlg',method:'dialog',onsubmit:e=>e.preventDefault()},h('h3',null,title),hint?h('p',{class:'hint'},hint):null,body,h('div',{class:'err',id:'dlgErr'}),
+    h('div',{class:'acts'},buttons.map(([label,fn,cls])=>h('button',{type:'button',class:'btn '+(cls||'ghost'),onclick:fn},label)))));
+  dlg.showModal();return dlg;
+}
+const err=(m,ok)=>{const e=$('#dlgErr');if(e){e.textContent=m||'';e.classList.toggle('ok',!!ok);}};
+const close=()=>$('#dlg').close();
+const field=(label,attrs)=>[h('label',null,label),h('input',Object.assign({autocomplete:'off'},attrs))];
+
+/* ─ crypto: PBKDF2 → AES-GCM ─ */
+const enc=new TextEncoder(), dec=new TextDecoder();
+const b64=u8=>{let r='';for(let i=0;i<u8.length;i+=0x8000)r+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(r);}, unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function deriveKey(pw,salt){
+  const km=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function encryptToken(pw,tok){
+  const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+  const key=await deriveKey(pw,salt);const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(tok)));
+  return {salt:b64(salt),iv:b64(iv),ct:b64(ct)};
+}
+async function decryptToken(pw,a){
+  const key=await deriveKey(pw,unb64(a.salt));
+  try{return dec.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(a.iv)},key,unb64(a.ct)));}catch(e){return null;}
+}
+
+/* ─ GitHub Contents API ─ */
+const GH=(path,opt={})=>{
+  const url='https://api.github.com/repos/'+D.admin.repo+'/contents/'+path;
+  const f=window.FAKE_GH||fetch;
+  return f(url,Object.assign({headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}},opt));
+};
+const utf8b64=s=>b64(enc.encode(s)), b64utf8=s=>dec.decode(unb64(s.replace(/\n/g,'')));
+function serializeData(){return JSON.stringify(D,null,1).replace(/<\/script/gi,'<\\/script');}
+function injectData(html){
+  const re=/(<script id="site-data" type="application\/json">)([\s\S]*?)(<\/script>)/;
+  if(!re.test(html))throw new Error('index.html에서 데이터 블록을 찾지 못했습니다.');
+  return html.replace(re,(m,a,b,c)=>a+serializeData()+c);
+}
+async function currentHtml(){
+  if(token&&D.admin.repo){const r=await GH('index.html?ref='+(D.admin.branch||'main'));if(r.ok){const j=await r.json();return {html:b64utf8(j.content),sha:j.sha};}}
+  if(location.protocol!=='file:'){const r=await fetch(location.pathname,{cache:'no-store'});if(r.ok)return {html:await r.text(),sha:null};}
+  throw new Error('현재 파일을 읽지 못했습니다 (로컬 파일에서는 게시 후에 사용할 수 있습니다).');
+}
+async function publish(message){
+  D.meta=D.meta||{};D.meta.updated=new Date().toISOString().slice(0,10);
+  const cur=await currentHtml();
+  const html=injectData(cur.html);
+  const body={message:message||'Update site content',content:utf8b64(html),branch:D.admin.branch||'main'};if(cur.sha)body.sha=cur.sha;
+  const r=await GH('index.html',{method:'PUT',body:JSON.stringify(body)});
+  if(!r.ok){const j=await r.json().catch(()=>({}));throw new Error('GitHub 오류 '+r.status+': '+(j.message||''));}
+  dirty=false;$('#dirty').textContent='';return r;
+}
+async function uploadFile(path,file){
+  const buf=new Uint8Array(await file.arrayBuffer());let s='';for(let i=0;i<buf.length;i+=0x8000)s+=String.fromCharCode.apply(null,buf.subarray(i,i+0x8000));
+  let sha;const g=await GH(path+'?ref='+(D.admin.branch||'main'));if(g.ok)sha=(await g.json()).sha;
+  const body={message:'Upload '+path,content:btoa(s),branch:D.admin.branch||'main'};if(sha)body.sha=sha;
+  const r=await GH(path,{method:'PUT',body:JSON.stringify(body)});if(!r.ok)throw new Error('업로드 실패 '+r.status);return path;
+}
+
+/* ─ dialogs ─ */
+function setupDialog(){
+  dialog('관리자 초기 설정','이 사이트는 아직 관리자 설정이 없습니다. GitHub 접근 키(fine-grained, 이 저장소의 Contents 읽기/쓰기만)를 만들어 아래에 넣으세요.\n키는 비밀번호로 암호화되어 사이트 데이터에 저장되며 원문은 어디에도 남지 않습니다.',
+    h('div',null,field('GitHub 저장소 (예: username/PowerConv)',{id:'f_repo',value:D.admin.repo||'',placeholder:'owner/repo'}),field('브랜치',{id:'f_branch',value:D.admin.branch||'main'}),
+      field('GitHub 접근 키 (github_pat_…)',{id:'f_tok',type:'password'}),field('관리자 비밀번호 (10자 이상)',{id:'f_pw1',type:'password'}),field('비밀번호 확인',{id:'f_pw2',type:'password'})),
+    [['취소',close],['설정하고 게시',async()=>{
+      const repo=$('#f_repo').value.trim(),br=$('#f_branch').value.trim()||'main',tok=$('#f_tok').value.trim(),p1=$('#f_pw1').value,p2=$('#f_pw2').value;
+      if(!/^[\w.-]+\/[\w.-]+$/.test(repo))return err('저장소는 owner/repo 형식으로 입력하세요.');
+      if(!tok)return err('접근 키를 입력하세요.');if(p1.length<10)return err('비밀번호는 10자 이상이어야 합니다.');if(p1!==p2)return err('비밀번호가 서로 다릅니다.');
+      err('암호화 중…',true);
+      try{const a=await encryptToken(p1,tok);D.admin={repo,branch:br,...a};token=tok;err('GitHub에 게시 중…',true);await publish('Set up admin');close();enterAdmin();toast('설정 완료. 1~2분 뒤 사이트에 반영됩니다.');}
+      catch(e){token=null;err(e.message);}
+    },'primary']]);
+}
+function loginDialog(){
+  dialog('관리자 로그인',null,h('div',null,field('비밀번호',{id:'f_pw',type:'password',autofocus:true})),
+    [['취소',close],['로그인',async()=>{
+      err('확인 중…',true);const tok=await decryptToken($('#f_pw').value,D.admin);
+      if(!tok)return err('비밀번호가 올바르지 않습니다.');token=tok;close();enterAdmin();
+    },'primary']]);
+  const inp=$('#f_pw');inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$$('#dlg .acts button')[1].click();}});
+}
+function saveDialog(){
+  if(!token)return toast('로그인이 필요합니다.');
+  dialog('저장 및 게시','GitHub의 index.html을 지금 내용으로 갱신합니다. 반영까지 1~2분 걸립니다.',h('div',null,field('변경 내용 메모 (선택)',{id:'f_msg',placeholder:'예: 2026년 2월 졸업생 추가'})),
+    [['취소',close],['게시',async()=>{err('게시 중…',true);try{await publish($('#f_msg').value.trim()||undefined);close();toast('게시했습니다. 1~2분 뒤 새로고침(Ctrl+F5)하세요.');}catch(e){err(e.message);}},'primary']]);
+}
+function resetDialog(){
+  dialog('비밀번호·키 재설정','새 접근 키를 비워 두면 기존 키를 그대로 사용합니다.',
+    h('div',null,field('새 GitHub 접근 키 (선택)',{id:'f_tok',type:'password'}),field('새 비밀번호 (10자 이상)',{id:'f_pw1',type:'password'}),field('비밀번호 확인',{id:'f_pw2',type:'password'})),
+    [['취소',close],['재설정하고 게시',async()=>{
+      const tok=$('#f_tok').value.trim()||token,p1=$('#f_pw1').value,p2=$('#f_pw2').value;
+      if(p1.length<10)return err('비밀번호는 10자 이상이어야 합니다.');if(p1!==p2)return err('비밀번호가 서로 다릅니다.');
+      try{err('처리 중…',true);const a=await encryptToken(p1,tok);const old=D.admin;D.admin={repo:old.repo,branch:old.branch,...a};const prev=token;token=tok;
+        try{await publish('Reset admin credentials');}catch(e){D.admin=old;token=prev;throw e;}close();toast('재설정했습니다.');}catch(e){err(e.message);}
+    },'primary']]);
+}
+function imageDialog(path){
+  const cur=get(path)||'';const isFile=/cvFile|\.path$/.test(path);
+  dialog(isFile?'파일 설정':'그림 설정','저장소 안의 경로를 적거나(예: images/prof.jpg), 파일을 골라 저장소에 올립니다. 비우면 기본 표시로 돌아갑니다.',
+    h('div',null,field('경로',{id:'f_path',value:cur,placeholder:isFile?'files/cv.pdf':'images/photo.jpg'}),h('label',null,'파일 올리기'),h('input',{type:'file',id:'f_file',accept:isFile?'.pdf':'image/*'})),
+    [['취소',close],['비우기',()=>{set(path,'');markDirty();close();render();},'ghost'],['적용',async()=>{
+      const f=$('#f_file').files[0];let p=$('#f_path').value.trim();
+      try{ if(f){ if(!token)throw new Error('업로드하려면 로그인한 상태여야 합니다.'); const folder=isFile?'files/':'images/'; p=folder+f.name.replace(/[^\w.\-가-힣]/g,'_'); err('업로드 중…',true); await uploadFile(p,f);} set(path,p);markDirty();close();render(); }catch(e){err(e.message);}
+    },'primary']]);
+}
+/* 객체의 모든 문자열 필드를 폼으로 편집 */
+function editFields(path,onchange,title){
+  const obj=get(path);if(!obj||typeof obj!=='object')return;
+  const rows=[];
+  const walk=(o,pre)=>{for(const [k,v] of Object.entries(o)){
+    if(k==='admin'||k==='stats')continue;
+    if(isB(v)){rows.push([pre+k+' (KO)',pre+k+'.ko',v.ko]);rows.push([pre+k+' (EN)',pre+k+'.en',v.en]);}
+    else if(typeof v==='string'||typeof v==='number')rows.push([pre+k,pre+k,String(v)]);
+    else if(Array.isArray(v)&&v.every(x=>typeof x==='string'))rows.push([pre+k+' (쉼표로 구분)',pre+k,v.join(', '),'arr']);
+    else if(v&&typeof v==='object'&&!Array.isArray(v))walk(v,pre+k+'.');
+  }};walk(obj,'');
+  dialog(title||'항목 편집',null,h('div',null,rows.map(([label,p,val,kind])=>[h('label',null,label),
+    (val&&val.length>70)?h('textarea',{'data-f':p,'data-kind':kind||''},val):h('div',{class:'row'},h('input',{'data-f':p,'data-kind':kind||'',value:val}),/photo|image|cvFile|^path$|\.path$/.test(p)?h('button',{type:'button',class:'btn ghost sm',onclick:()=>{close();imageDialog(path+'.'+p);}},'파일'):null)])),
+    [['취소',close],['적용',()=>{$$('#dlg [data-f]').forEach(i=>{let v=i.value;if(i.dataset.kind==='arr')v=v.split(',').map(s=>s.trim()).filter(Boolean);set(path+'.'+i.dataset.f,v);});markDirty();close();(onchange||render)();},'primary']]);
+}
+async function downloadHtml(){
+  try{const cur=await currentHtml();const html=injectData(cur.html);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));a.download='index.html';a.click();}
+  catch(e){toast(e.message);}
+}
+function backupJson(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D,null,1)],{type:'application/json'}));a.download='site-data-'+new Date().toISOString().slice(0,10)+'.json';a.click();}
+function restoreJson(){
+  const i=document.createElement('input');i.type='file';i.accept='.json,application/json';
+  i.onchange=async()=>{try{const j=JSON.parse(await i.files[0].text());if(!j.site||!j.publications)throw new Error('이 사이트의 백업 파일이 아닙니다.');const keepAdmin=D.admin;D=j;D.admin=keepAdmin;markDirty();render();toast('불러왔습니다. [저장 및 게시]로 반영하세요.');}catch(e){toast(e.message);}};
+  i.click();
+}
+function openStats(){const c=D.site.goatcounter;if(!c)return toast('사이트 설정에서 GoatCounter 코드를 먼저 입력하세요.');window.open('https://'+c+'.goatcounter.com','_blank','noopener');}
+
+/* ─ 테스트 훅 (관리자 기능 시험용) ─ */
+window.__pcl={get data(){return D;},publish,encryptToken,decryptToken,injectData,serializeData,enter:enterAdmin};
+
+render();gcInit();
+})();
+</script>
+</body>
+</html>
